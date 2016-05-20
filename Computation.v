@@ -46,10 +46,10 @@ module Computation(shift, ALUop, bsel, loadc, loads);
 	//ALUop operations
 	always @(*) begin
 		case(ALUop)
-			2’b00: ALUComputedValue = Ain + Bin;		//if operation is 00 output is Ain + Bin
-			2’b01: ALUComputedValue = Ain - Bin;		//if operation is 01 output is Ain - Bin
-			2’b10: ALUComputedValue = Ain & Bin;		//if operation is 10 output is Ain AND Bin
-			2’b11: ALUComputedValue = ~Bin;			//if operation is 11 output is not Bin
+			2’b00: ALUComputedValue = Ain + Bin;	//if operation is 00 output is Ain + Bin
+			2’b01: ALUComputedValue = Ain - Bin;	//if operation is 01 output is Ain - Bin
+			2’b10: ALUComputedValue = Ain & Bin;	//if operation is 10 output is Ain AND Bin
+			2’b11: ALUComputedValue = ~Bin;		//if operation is 11 output is not Bin
 		endcase
 	end
 
