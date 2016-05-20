@@ -5,6 +5,7 @@ module DFlipFlop(clk,in,out);
   output [n-1:0] out;
   reg [n-1:0] out;
 
+  //update on rising edge
   always @(posedge clk)
     out = in;
 endmodule
