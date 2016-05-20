@@ -38,7 +38,7 @@ module Computation(shift, ALUop, bsel, loadc, loads);
 		case(shift)
 			2’b00: Bshift = B;			//if operation is 00 output is B
 			2’b01: Bshift = {B[14:0], 1’b0};	//if operation is 01 output is B shifted left one and right bit becomes 0 
-			2’b10: Bshift = {1’b0, B[15:1]} ;	//if operation is 10 output is B shifted right one and left bit becomes 0 
+			2’b10: Bshift = {1’b0, B[15:1]};	//if operation is 10 output is B shifted right one and left bit becomes 0 
 			2’b11: Bshift = {B[15], B[15:1]};	//if operation is 11 output is B shifted right one and left bit becomes b[15]
 		endcase
 	end
@@ -46,9 +46,9 @@ module Computation(shift, ALUop, bsel, loadc, loads);
 	//ALUop operations
 	always @(*) begin
 		case(ALUop)
-			2’b00: ALUComputedValue = Ain + Bin	//if operation is 00 output is Ain + Bin
-			2’b01: ALUComputedValue = Ain - Bin	//if operation is 01 output is Ain - Bin
-			2’b10: ALUComputedValue = Ain & Bin ;	//if operation is 10 output is Ain AND Bin
+			2’b00: ALUComputedValue = Ain + Bin;	//if operation is 00 output is Ain + Bin
+			2’b01: ALUComputedValue = Ain - Bin;	//if operation is 01 output is Ain - Bin
+			2’b10: ALUComputedValue = Ain & Bin;	//if operation is 10 output is Ain AND Bin
 			2’b11: ALUComputedValue = ~Bin;		//if operation is 11 output is not Bin
 		endcase
 	end
