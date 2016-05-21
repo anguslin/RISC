@@ -61,7 +61,7 @@ always @(*) begin
 		4’bxxx1: statusToUpdate = statusComputed	//if loadc is 1 load computed status value into statusToUpdate (wait for clock)
 		
 		default: {Ain, Bin, CToUpdate, statusToUpdate} = {49{1’bx}}       //set everything to x for default
-	endcasex
+	endcase
 end
 
 //Clock updates for status and C
@@ -124,10 +124,10 @@ always @(*) begin
 		5’bx1101: reg5 = data_in;			//if write is 1 and writenum is 101 put value in data_in and put in reg0
 		5’bx1110: reg6 = data_in; 			//if write is 1 and writenum is 110 put value in data_in and put in reg0		5’bx1111: reg7 = data_in; 			//if write is 1 and writenum is 111 put value in data_in and put in reg0
 		default: data_in = {16{1’bx}};	
-	endcasex
+	endcase
 end
 
 output [15:0] datapath_out;
 assign datapath_out = C; 		//put value of C into datapath_out
 
-
+endmodule
