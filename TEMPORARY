@@ -1,0 +1,133 @@
+
+//This verilog code is to implement the datapath for a simple RISC machine
+
+module datapath(clk, readnum, vsel, loada, loadb, shift, axel, bel, ALUop, loadc, loads, writenum, write, datapath_in, status, datapath_out)
+
+
+
+//
+//Reading and Registering
+//
+
+input clk, loada, loadb, write;
+input [2:0] readnum;
+wire [15:0] reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
+wire [15:0] A, B;
+reg [15:0] AToUpdate, BToUpdate;
+reg [15:0] data_out;
+
+always @(*) begin
+	casex(write, readnum, loada, loadb)
+		6’b0000xx: data_out = reg0;	 		//if write is 0 and readnum is 000 take the value in register 0 and put in data_out
+		6’b0001xx: data_out = reg1; 			//if write is 0 and readnum is 001 take the value in register 1 and put in data_out
+		6’b0010xx: data_out = reg2; 			//if write is 0 and readnum is 010 take the value in register 2 and put in data_out
+		6’b0011xx: data_out = reg3; 			//if write is 0 and readnum is 011 take the value in register 3 and put in data_out
+		6’b0100xx: data_out = reg4;	 		//if write is 0 and readnum is 100 take the value in register 4 and put in data_out
+		6’b0101xx: data_out = reg5; 			//if write is 0 and readnum is 101 take the value in register 5 and put in data_out
+		6’b0110xx: data_out = reg6; 			//if write is 0 and readnum is 110 take the value in register 6 and put in data_out
+		6’b0111xx: data_out = reg7; 			//if write is 0 and readnum is 111 take the value in register 7 and put in data_out
+		6’b0xxx10: AtoUpdate = data_out; 		//if load a is 1 and load b is 0 put value of data_out in load a
+		6’b0xxx01: BtoUpdate = data_out; 		//if load b is 1 and load a is 0 put value of data out in load b —> what if both 1? unsure
+
+		default: {data_in, data_out, AToUpdate, BToUpdate} = {64{1’bx}};       //set everything to x for default
+	endcasex
+end
+
+//Clock Upates for A and B
+DFlipFlop #(16) loadaData(clk, A , AToUpdate); 		//A is running on a clock
+DFlipFlop #(16) loadbData(clk, B, BToUpdate); 		//B is running on a cock
+
+
+
+//
+//Computation Stage
+//
+
+input [1:0] shift, ALUop;
+input asel, bsel, loadc, loads;
+wire [15:0] Ain, Bin BShift ALUComputedValue, C; 
+wire statusComputed, status;
+reg statusToUpdate;
+reg [15:0] CToUpdate;
+
+//Operations for Computation Stage
+always @(*) begin
+	casex(asel, bsel, loadc,loads)
+		4’b1xxx: Ain =  A; 						//if asel is 1 set Ain = A value 
+		4’b0xxx: Ain = {16{1’b0}} 					//if asel is 0 set Ain = 16bit 0s
+		4’bx0xx: Bin = BShift; 					//if bsel is 0 set Bin = to shifted B value
+		4’bx1xx: Bin = {{11{1’b0}},datapath_in[4:0]};	//if bsel is 1 set Bin = to 11bits 0s + first 5 bits of datapath_in
+		4’bxx1x: CToUpdate = ALUComputedValue	//if loadc is 1 load computed ALU value into CToUpdate (wait for clock)
+		4’bxxx1: statusToUpdate = statusComputed	//if loadc is 1 load computed status value into statusToUpdate (wait for clock)
+		
+		default: {Ain, Bin, CToUpdate, statusToUpdate} = {49{1’bx}}       //set everything to x for default
+	endcasex
+end
+
+//Clock updates for status and C
+DFlipFlop #(1) loadaData(clk, status , statusToUpdate); 		//status is running on a clock
+DFlipFlop #(16) loadbData(clk, C, CToUpdate); 			//C is running on a cock
+
+
+// assign statusStatusComputed = (&~ALUcomputedValue)? 1: 0;  //TRY THIS OUT??
+
+//Values for ALU and status
+always @(*) begin
+	case(ALUComputedValue)
+		16’b0000000000000000: statusComputed = 1; 		//if all 0 then status value to be updated will be 0 
+		default: statusComputed =0;					//if not all 0 then status value to be updated will be 1
+	endcase
+end
+
+//Shift operations
+always @(*) begin
+	case(shift)
+		2’b00: Bshift = B;				//if operation is 00 output is B
+		2’b01: Bshift = {B[14:0], 1’b0};		//if operation is 01 output is B shifted left one and right bit becomes 0 
+		2’b10: Bshift = {1’b0, B[15:1]} ;		//if operation is 10 output is B shifted right one and left bit becomes 0 
+		2’b11: Bshift = {B[15], B[15:1]};		//if operation is 11 output is B shifted right one and left bit becomes b[15]
+	endcase
+end
+
+//ALUop operations
+always @(*) begin
+	case(ALUop)
+		2’b00: ALUComputedValue = Ain + Bin		//if operation is 00 output is Ain + Bin
+		2’b01: ALUComputedValue = Ain - Bin		//if operation is 01 output is Ain - Bin
+		2’b10: ALUComputedValue = Ain & Bin ;		//if operation is 10 output is Ain AND Bin
+		2’b11: ALUComputedValue = ~Bin;			//if operation is 11 output is not Bin
+	endcase
+end
+
+
+//
+//Writing values into register and Writing Back
+//
+
+input [15:0] datapath_in;
+input vsel;
+input [2:0] writenum;
+output [15:0] datapath_out;
+reg [15:0] data_in;
+
+
+//Operations for Writing Back values and Registering writing
+always @(*) begin
+	casex(vsel, write, writenum)
+		5’b1xxxx: data_in = datapath_in; 	//if vsel is 1 put input new values from datapath_in to data_in
+		5’b0xxxx: data_in = datapath_out;	//if vsel is 0 put write back values to data_in
+		5’bx1000: reg0 = data_in; 			//if write is 1 and writenum is 000 put value in data_in and put in reg0
+		5’bx1001: reg1 = data_in; 			//if write is 1 and writenum is 001 put value in data_in and put in reg0
+		5’bx1010: reg2 = data_in; 			//if write is 1 and writenum is 010 put value in data_in and put in reg0
+		5’bx1011: reg3 = data_in; 			//if write is 1 and writenum is 011 put value in data_in and put in reg0
+		5’bx1100: reg4 = data_in; 			//if write is 1 and writenum is 100 put value in data_in and put in reg0
+		5’bx1101: reg5 = data_in;			//if write is 1 and writenum is 101 put value in data_in and put in reg0
+		5’bx1110: reg6 = data_in; 			//if write is 1 and writenum is 110 put value in data_in and put in reg0		5’bx1111: reg7 = data_in; 			//if write is 1 and writenum is 111 put value in data_in and put in reg0
+		default: data_in = {16{1’bx}};	
+	endcasex
+end
+
+output [15:0] datapath_out;
+assign datapath_out = C; 		//put value of C into datapath_out
+
+
