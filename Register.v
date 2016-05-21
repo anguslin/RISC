@@ -19,7 +19,7 @@ module Register(clk, vsel, loada, loadb, write, readnum)
 			6’b0xxx01: BtoUpdate = data_out; 		//if load b is 1 and load a is 0 put value of data out in load b —> what if both 1? unsure
 	
 			default: {data_in, data_out, AToUpdate, BToUpdate} = {64{1’bx}};       //set everything to x for default
-		endcasex
+		endcase
 	end
 	
 	//Clock Upates for A and B //Instantiate DFlipFlop
