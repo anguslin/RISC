@@ -1,14 +1,14 @@
-module Computation(shift, ALUop, bsel, loadc, loads);
+module Computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, B, status, C);
 
-	input [1:0] shift, ALUop;
 	input clk, asel, bsel, loadc, loads;
+	input [1:0] shift, ALUop;
 	input [15:0] datapath_in, A, B;
+	output status;
+	output [15:0] C;
 	reg [15:0] BShift, ALUComputedValue;
 	reg statusComputed;
 	wire [15:0] Ain, Bin;
-	output status;
-	output [15:0] C;
-	
+
 	//if asel= 1 set Ain= A value else set Ain= 0s 
 	assign Ain= asel? A: {`WIDTH{1'b0}}; 
 
