@@ -2,7 +2,7 @@ module Write( datapath_in, vsel, writenum, datapath_out);
 
 	input vsel;
 	input [2:0] writenum;
-	input [15:0] C;
+	input [15:0] C, datapath_in;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	wire [15:0] data_in;
 	reg [15:0] reg0ToUpdate, reg1ToUpdate, reg2ToUpdate, reg3ToUpdate, reg4ToUpdate, reg5ToUpdate, reg6ToUpdate, reg7ToUpdate;
@@ -35,5 +35,6 @@ module Write( datapath_in, vsel, writenum, datapath_out);
 	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
 	assign data_in= vsel? datapath_in: datapath_out; 
 
-	assign datapath_out= C; 	
+	assign datapath_out= C; 
+	
 endmodule
