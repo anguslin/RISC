@@ -15,7 +15,7 @@ module Write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg
 			3'b010: reg2ToUpdate= write? data_in: reg2ToUpdate; 	//if write= 1 and writenum= 010 
 			3'b011: reg3ToUpdate= write? data_in: reg3ToUpdate; 	//if write= 1 and writenum= 011 
 			3'b100: reg4ToUpdate= write? data_in: reg4ToUpdate; 	//if write= 1 and writenum= 100 
-			3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate	//if write= 1 and writenum= 101 
+			3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate;	//if write= 1 and writenum= 101 
 			3'b110: reg6ToUpdate= write? data_in: reg6ToUpdate;	//if write= 1 and writenum= 110 
 			3'b111: reg7ToUpdate= write? data_in: reg7ToUpdate; 	//if write= 1 and writenum= 111 
 			default: {reg0ToUpdate,reg1ToUpdate,reg2ToUpdate,reg3ToUpdate,reg4ToUpdate,reg5ToUpdate,reg6ToUpdate,reg7ToUpdate}= {112{1'bx}};	//default all x
