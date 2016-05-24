@@ -1,4 +1,4 @@
-module Register(clk, vsel, loada, loadb, write, readnum)
+module Register(clk, loada, loadb, write, readnum, reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7, A, B);
   
 	input clk, loada, loadb, write;
 	input [2:0] readnum;
