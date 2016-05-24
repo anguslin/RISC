@@ -49,6 +49,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	Write instantiateWrite(
 		.clk(clk), 
 		.vsel(vsel), 
+		.write(write),
 		.writenum(writenum), 
 		.C(C), 
 		.datapath_in(datapath_in), 
