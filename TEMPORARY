@@ -1,9 +1,9 @@
-
 //This verilog code is to implement the datapath for a simple RISC machine
 
 module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, datapath_in, status, datapath_out);
 
-
+`define WIDTH 16
+`define STATUSWIDTH 1
 
 //
 //Reading and Registering
@@ -11,31 +11,27 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 
 input clk, loada, loadb, write;
 input [2:0] readnum;
-wire [15:0] reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
+reg [15:0] reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
 wire [15:0] A, B;
-reg [15:0] AToUpdate, BToUpdate;
 reg [15:0] data_out;
 
 always @(*) begin
-	casex({write, readnum, loada, loadb})
-		6'b0000xx: data_out = reg0;	 		//if write is 0 and readnum is 000 take the value in register 0 and put in data_out
-		6'b0001xx: data_out = reg1; 			//if write is 0 and readnum is 001 take the value in register 1 and put in data_out
-		6'b0010xx: data_out = reg2; 			//if write is 0 and readnum is 010 take the value in register 2 and put in data_out
-		6'b0011xx: data_out = reg3; 			//if write is 0 and readnum is 011 take the value in register 3 and put in data_out
-		6'b0100xx: data_out = reg4;	 		//if write is 0 and readnum is 100 take the value in register 4 and put in data_out
-		6'b0101xx: data_out = reg5; 			//if write is 0 and readnum is 101 take the value in register 5 and put in data_out
-		6'b0110xx: data_out = reg6; 			//if write is 0 and readnum is 110 take the value in register 6 and put in data_out
-		6'b0111xx: data_out = reg7; 			//if write is 0 and readnum is 111 take the value in register 7 and put in data_out
-		6'b0xxx10: AToUpdate = data_out; 		//if load a is 1 and load b is 0 put value of data_out in load a
-		6'b0xxx01: BToUpdate = data_out; 		//if load b is 1 and load a is 0 put value of data out in load b —> what if both 1? unsure
-
-		default: {data_out, AToUpdate, BToUpdate} = {48{1'bx}};       //set everything to x for default
+	case(readnum)
+	3'b000: data_out= write? data_out: reg0; //if write is 0 and readnum is 000 take the value in register 0 and put in data_out
+	3'b001: data_out= write? data_out: reg1; //if write is 0 and readnum is 001 take the value in register 1 and put in data_out
+	3'b010: data_out= write? data_out: reg2; //if write is 0 and readnum is 010 take the value in register 2 and put in data_out
+	3'b011: data_out= write? data_out: reg3; //if write is 0 and readnum is 011 take the value in register 3 and put in data_out
+	3'b100: data_out= write? data_out: reg4; //if write is 0 and readnum is 100 take the value in register 4 and put in data_out
+	3'b101: data_out= write? data_out: reg5; //if write is 0 and readnum is 101 take the value in register 5 and put in data_out
+	3'b110: data_out= write? data_out: reg6; //if write is 0 and readnum is 110 take the value in register 6 and put in data_out
+	3'b111: data_out= write? data_out: reg7; //if write is 0 and readnum is 111 take the value in register 7 and put in data_out
+	default: data_out= {`WIDTH{1'bx}}; //set everything to x for default
 	endcase
 end
 
-//Clock Upates for A and B
-DFlipFlop #(16) loadaData(clk, A , AToUpdate); 		//A is running on a clock
-DFlipFlop #(16) loadbData(clk, B, BToUpdate); 		//B is running on a cock
+//Clock Updates for A and B depending on clock and loada and loadb
+DFlipFlopAllow #(`WIDTH) loadaData(clk, loada, data_out, A); //A is running on a clock
+DFlipFlopAllow #(`WIDTH) loadbData(clk, loadb, data_out, B); //B is running on a clock
 
 
 
@@ -45,89 +41,97 @@ DFlipFlop #(16) loadbData(clk, B, BToUpdate); 		//B is running on a cock
 
 input [1:0] shift, ALUop;
 input asel, bsel, loadc, loads;
-wire [15:0] Ain, Bin, BShift ALUComputedValue, C; 
-wire statusComputed, status;
-reg statusToUpdate;
-reg [15:0] CToUpdate;
+input [15:0] datapath_in;
+reg [15:0] BShift, ALUComputedValue, C; 
+wire [15:0] Ain, Bin;
+output status;
+reg statusComputed;
 
 //Operations for Computation Stage
-always @(*) begin
-	casex(asel, bsel, loadc,loads)
-		4'b1xxx: Ain =  A; 						//if asel is 1 set Ain = A value 
-		4'b0xxx: Ain = {16{1'b0}} 					//if asel is 0 set Ain = 16bit 0s
-		4'bx0xx: Bin = BShift; 					//if bsel is 0 set Bin = to shifted B value
-		4'bx1xx: Bin = {{11{1'b0}},datapath_in[4:0]};	//if bsel is 1 set Bin = to 11bits 0s + first 5 bits of datapath_in
-		4'bxx1x: CToUpdate = ALUComputedValue	//if loadc is 1 load computed ALU value into CToUpdate (wait for clock)
-		4'bxxx1: statusToUpdate = statusComputed	//if loadc is 1 load computed status value into statusToUpdate (wait for clock)
-		
-		default: {Ain, Bin, CToUpdate, statusToUpdate} = {49{1'bx}}       //set everything to x for default
-	endcase
-end
+
+//if asel is 1 set Ain= A value else set Ain= 0s 
+assign Ain= asel? A: {`WIDTH{1'b0}}; 
+
+//if bsel is 0 set Bin= to shifted B value else set Bin= to 11bits 0s + first 5 bits of datapath_in
+assign Bin= bsel? {{11{1'b0}},datapath_in[4:0]}: BShift; 
 
 //Clock updates for status and C
-DFlipFlop #(1) loadStatusData(clk, status , statusToUpdate); 		//status is running on a clock
-DFlipFlop #(16) loadCData(clk, C, CToUpdate); 			//C is running on a cock
+DFlipFlopAllow #(`STATUSWIDTH) loadStatusData(clk, loads, statusComputed, status); 	//status is running on a clock
+DFlipFlopAllow #(`WIDTH) loadCData(clk, loadc, ALUComputedValue, C); 		//C is running on a cock
 
-
-// assign statusStatusComputed = (&~ALUcomputedValue)? 1: 0;  //TRY THIS OUT??
 
 //Values for ALU and status
 always @(*) begin
 	case(ALUComputedValue)
-		16'b0000000000000000: statusComputed = 1; 		//if all 0 then status value to be updated will be 0 
-		default: statusComputed =0;					//if not all 0 then status value to be updated will be 1
+		16'b0000000000000000: statusComputed= 1; 	//if all 0 then status value to be updated will be 0 
+		default: statusComputed= 0;			//if not all 0 then status value to be updated will be 1
 	endcase
 end
 
 //Shift operations
 always @(*) begin
 	case(shift)
-		2'b00: BShift = B;				//if operation is 00 output is B
-		2'b01: BShift = {B[14:0], 1'b0};		//if operation is 01 output is B shifted left one and right bit becomes 0 
-		2'b10: BShift = {1'b0, B[15:1]} ;		//if operation is 10 output is B shifted right one and left bit becomes 0 
-		2'b11: BShift = {B[15], B[15:1]};		//if operation is 11 output is B shifted right one and left bit becomes b[15]
+	2'b00: BShift= B;			//if operation is 00 output is B
+	2'b01: BShift= {B[14:0], 1'b0};		//if operation is 01 output is B shifted left one and right bit becomes 0 
+	2'b10: BShift= {1'b0, B[15:1]} ;	//if operation is 10 output is B shifted right one and left bit becomes 0 
+	2'b11: BShift= {B[15], B[15:1]};	//if operation is 11 output is B shifted right one and left bit becomes b[15]
+	default: BShift= {`WIDTH{1'bx}};		//default all to x
 	endcase
 end
 
 //ALUop operations
 always @(*) begin
 	case(ALUop)
-		2'b00: ALUComputedValue = Ain + Bin;		//if operation is 00 output is Ain + Bin
-		2'b01: ALUComputedValue = Ain - Bin;		//if operation is 01 output is Ain - Bin
-		2'b10: ALUComputedValue = Ain & Bin;		//if operation is 10 output is Ain AND Bin
-		2'b11: ALUComputedValue = ~Bin;		//if operation is 11 output is not Bin
+	2'b00: ALUComputedValue= Ain + Bin;		//if operation is 00 output is Ain + Bin
+	2'b01: ALUComputedValue= Ain - Bin;		//if operation is 01 output is Ain - Bin
+	2'b10: ALUComputedValue= Ain & Bin;		//if operation is 10 output is Ain AND Bin
+	2'b11: ALUComputedValue= ~Bin;			//if operation is 11 output is not Bin
+	default: ALUComputedValue= {`WIDTH{1'bx}};	//default all x
 	endcase
 end
+
 
 
 //
 //Writing values into register and Writing Back
 //
 
-input [15:0] datapath_in;
 input vsel;
 input [2:0] writenum;
 output [15:0] datapath_out;
-reg [15:0] data_in;
-
-
+wire [15:0] data_in;
+reg [15:0] reg0ToUpdate, reg1ToUpdate, reg2ToUpdate, reg3ToUpdate, reg4ToUpdate, reg5ToUpdate, reg6ToUpdate, reg7ToUpdate;
 //Operations for Writing Back values and Registering writing
+
+//Update based on clock
 always @(*) begin
-	casex({vsel, write, writenum})
-		5'b1xxxx: data_in = datapath_in; 	//if vsel is 1 put input new values from datapath_in to data_in
-		5'b0xxxx: data_in = datapath_out;	//if vsel is 0 put write back values to data_in
-		5'bx1000: reg0 = data_in; 			//if write is 1 and writenum is 000 put value in data_in and put in reg0
-		5'bx1001: reg1 = data_in; 			//if write is 1 and writenum is 001 put value in data_in and put in reg0
-		5'bx1010: reg2 = data_in; 			//if write is 1 and writenum is 010 put value in data_in and put in reg0
-		5'bx1011: reg3 = data_in; 			//if write is 1 and writenum is 011 put value in data_in and put in reg0
-		5'bx1100: reg4 = data_in; 			//if write is 1 and writenum is 100 put value in data_in and put in reg0
-		5'bx1101: reg5 = data_in;			//if write is 1 and writenum is 101 put value in data_in and put in reg0
-		5'bx1110: reg6 = data_in; 			//if write is 1 and writenum is 110 put value in data_in and put in reg0		5'bx1111: reg7 = data_in; 			//if write is 1 and writenum is 111 put value in data_in and put in reg0
-		default: data_in = {16{1'bx}};	
+	case(writenum)
+	3'b000: reg0ToUpdate= write? data_in: reg0ToUpdate; 	//if write is 1 and writenum is 000 put value in data_in and put in reg0
+	3'b001: reg1ToUpdate= write? data_in: reg1ToUpdate; 	//if write is 1 and writenum is 001 put value in data_in and put in reg1
+	3'b010: reg2ToUpdate= write? data_in: reg2ToUpdate; 	//if write is 1 and writenum is 010 put value in data_in and put in reg2
+	3'b011: reg3ToUpdate= write? data_in: reg3ToUpdate; 	//if write is 1 and writenum is 011 put value in data_in and put in reg3
+	3'b100: reg4ToUpdate= write? data_in: reg4ToUpdate;	//if write is 1 and writenum is 100 put value in data_in and put in reg4
+	3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate;	//if write is 1 and writenum is 101 put value in data_in and put in reg5
+	3'b110: reg6ToUpdate= write? data_in: reg6ToUpdate;	//if write is 1 and writenum is 110 put value in data_in and put in reg6
+	3'b111: reg7ToUpdate= write? data_in: reg7ToUpdate; 	//if write is 1 and writenum is 111 put value in data_in and put in reg7
+	default: {reg0ToUpdate,reg1ToUpdate,reg2ToUpdate,reg3ToUpdate,reg4ToUpdate,reg5ToUpdate,reg6ToUpdate,reg7ToUpdate}= {112{1'bx}};	//default all x
 	endcase
 end
 
-output [15:0] datapath_out;
-assign datapath_out = C; 		//put value of C into datapath_out
+//Update registers on a clock
+DFlipFlop #(`WIDTH) loadreg0Data(clk, reg0ToUpdate, reg0);
+DFlipFlop #(`WIDTH) loadreg1Data(clk, reg1ToUpdate, reg1);
+DFlipFlop #(`WIDTH) loadreg2Data(clk, reg2ToUpdate, reg2);
+DFlipFlop #(`WIDTH) loadreg3Data(clk, reg3ToUpdate, reg3);
+DFlipFlop #(`WIDTH) loadreg4Data(clk, reg4ToUpdate, reg4);
+DFlipFlop #(`WIDTH) loadreg5Data(clk, reg5ToUpdate, reg5);
+DFlipFlop #(`WIDTH) loadreg6Data(clk, reg6ToUpdate, reg6);
+DFlipFlop #(`WIDTH) loadreg7Data(clk, reg7ToUpdate, reg7);
 
+
+//if vsel is 1 input values from datapath_in to data_in else input values from datapath_out to data_in
+assign data_in= vsel? datapath_in: datapath_out; 
+
+//put value of C into datapath_out
+assign datapath_out= C; 		
 endmodule
