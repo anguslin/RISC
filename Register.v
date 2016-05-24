@@ -3,7 +3,7 @@ module Register(clk, vsel, loada, loadb, write, readnum)
 	input clk, loada, loadb, write;
 	input [2:0] readnum;
 	wire [15:0] reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
-	wire [15:0] A, B;
+	output [15:0] A, B;
 	reg [15:0] data_out;
 
 	always @(*) begin
