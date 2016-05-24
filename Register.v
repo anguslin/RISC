@@ -16,7 +16,7 @@ module Register(clk, loada, loadb, write, readnum, reg0, reg1, reg2, reg3, reg4 
 			3'b101: data_out= write? data_out: reg5; //if write= 0 and readnum= 101 data_out = reg5
 			3'b110: data_out= write? data_out: reg6; //if write= 0 and readnum= 110 data_out = reg6
 			3'b111: data_out= write? data_out: reg7; //if write= 0 and readnum= 111 data_out = reg7
-			default: data_out= {`WIDTH{1'bx}}	 //set everything to x for default
+			default: data_out= {`WIDTH{1'bx}};	 //set everything to x for default
 		endcase
 	end
 
