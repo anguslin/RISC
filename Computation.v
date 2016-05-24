@@ -2,7 +2,7 @@ module Computation(shift, ALUop, bsel, loadc, loads);
 
 	input [1:0] shift, ALUop;
 	input clk, asel, bsel, loadc, loads;
-	input [15:0] datapath_in;
+	input [15:0] datapath_in, A, B;
 	reg [15:0] BShift, ALUComputedValue;
 	reg statusComputed;
 	wire [15:0] Ain, Bin;
