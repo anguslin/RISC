@@ -5,9 +5,8 @@ module Computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	input [15:0] datapath_in, A, B;
 	output status;
 	output [15:0] C;
-	reg [15:0] BShift, ALUComputedValue;
 	reg statusComputed;
-	wire [15:0] Ain, Bin;
+	wire [15:0] Ain, Bin, BShift, ALUComputedValue;
 
 	//if asel= 1 set Ain= A value else set Ain= 0s 
 	assign Ain= asel? A: {`WIDTH{1'b0}}; 
@@ -26,28 +25,20 @@ module Computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 			default: statusComputed= 0;			//if not all 0 then status value to be updated will be 1
 		endcase
 	end
-
-	//Shift operations
-	always @(*) begin
-		case(shift)
-			2'b00: BShift= B;			//if operation= 00 output= B
-			2'b01: BShift= {B[14:0], 1'b0};		//if operation= 01 output= B shifted left one and right bit= 0 
-			2'b10: BShift= {1'b0, B[15:1]} ;	//if operation= 10 output= B shifted right one and left bit= 0 
-			2'b11: BShift= {B[15], B[15:1]};	//if operation= 11 output= B shifted right one and left bit= b[15]
-			default: BShift= {`WIDTH{1'bx}};	//default all to x
-		endcase
-	end
-
-	//ALUop operations
-	always @(*) begin
-		case(ALUop)
-			2'b00: ALUComputedValue= Ain + Bin;		//if operation= 00 output= Ain + Bin
-			2'b01: ALUComputedValue= Ain - Bin;		//if operation= 01 output= Ain - Bin
-			2'b10: ALUComputedValue= Ain & Bin;		//if operation= 10 output= Ain AND Bin
-			2'b11: ALUComputedValue= ~Bin;			//if operation= 11 output= not Bin
-			default: ALUComputedValue= {`WIDTH{1'bx}};	//default all x
-		endcase
-	end
-
+	
+	//Shift Operations
+	Shift instantiateShift(
+		.B(B), 
+		.BShift(BShift),
+		.shift(shift)
+	);
+	
+	//ALU Operations
+	ALU instatiateOperation(
+		.ALUop(ALUop), 
+		.Ain(Ain), 
+		.Bin(Bin), 
+		.ALUComputedValue(ALUComputedValue)
+	);
 endmodule
 
