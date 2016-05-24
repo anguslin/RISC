@@ -1,6 +1,6 @@
-module Write( datapath_in, vsel, writenum, datapath_out);
+module Write(clk, vsel, writenum, C, datapath_in, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
 
-	input vsel;
+	input clk, vsel;
 	input [2:0] writenum;
 	input [15:0] C, datapath_in;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
