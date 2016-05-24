@@ -10,8 +10,8 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	input [1:0] shift, ALUop;
 	input [15:0] datapath_in;
 	output [15:0] datapath_out;
-	output status
-	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
+	output status;
+	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	
 	Register instantiateReg(
 	 	.clk(clk),
