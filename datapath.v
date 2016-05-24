@@ -13,38 +13,55 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	output status
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7;
 	
-module Register(clk, loada, loadb, write, readnum, reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7, A, B);
-
-Register instantiateReg(
- 	.clk(clk),
-	.loada(loada),
-	.write(write),
-	.readnum(readnum),
-	.reg0(reg0),
-	.reg1(reg1),
-	.reg2(reg2),
-	.reg3(reg3),
-	.reg4(reg4),
-	.reg5(reg5),
-	.reg6(reg6),
-	.reg7(reg7),
-	.A(A),
-	.B(B)
- );
-  
-Computation instantiateComp(
-	.clk(clk), 
-	.asel(asel), 
-	.bsel(bsel), 
-	.loadc(loadc), 
-	.loads(loads), 
-	.shift(shift), 
-	.ALUop(ALUop), 
-	.datapath_in(datapath_in), 
-	.A(A), 
-	.B(B), 
-	.status(status), 
-	.C(C)
-);
+	Register instantiateReg(
+	 	.clk(clk),
+		.loada(loada),
+		.write(write),
+		.readnum(readnum),
+		.reg0(reg0),
+		.reg1(reg1),
+		.reg2(reg2),
+		.reg3(reg3),
+		.reg4(reg4),
+		.reg5(reg5),
+		.reg6(reg6),
+		.reg7(reg7),
+		.A(A),
+		.B(B)
+	 );
+	  
+	Computation instantiateComp(
+		.clk(clk), 
+		.asel(asel), 
+		.bsel(bsel), 
+		.loadc(loadc), 
+		.loads(loads), 
+		.shift(shift), 
+		.ALUop(ALUop), 
+		.datapath_in(datapath_in), 
+		.A(A), 
+		.B(B), 
+		.status(status), 
+		.C(C)
+	);
+		
+		
+	Write instantiateWrite(
+		.clk(clk), 
+		.vsel(vsel), 
+		.writenum(writenum), 
+		.C(C), 
+		.datapath_in(datapath_in), 
+		.datapath_out(datapath_out), 
+		.reg0(reg0), 
+		.reg1(reg1), 
+		.reg2(reg2), 
+		.reg3(reg3), 
+		.reg4(reg4), 
+		.reg5(reg5), 
+		.reg6(reg6), 
+		.reg7(reg7)
+	);
 	
+endmodule
 
