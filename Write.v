@@ -10,15 +10,15 @@ module Write( datapath_in, vsel, writenum, datapath_out);
 	//Update based on clock
 	always @(*) begin
 		case(writenum)
-		3'b000: reg0ToUpdate= write? data_in: reg0ToUpdate; 	//if write= 1 and writenum= 000
-		3'b001: reg1ToUpdate= write? data_in: reg1ToUpdate; 	//if write= 1 and writenum= 001 
-		3'b010: reg2ToUpdate= write? data_in: reg2ToUpdate; 	//if write= 1 and writenum= 010 
-		3'b011: reg3ToUpdate= write? data_in: reg3ToUpdate; 	//if write= 1 and writenum= 011 
-		3'b100: reg4ToUpdate= write? data_in: reg4ToUpdate; 	//if write= 1 and writenum= 100 
-		3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate;	  //if write= 1 and writenum= 101 
-		3'b110: reg6ToUpdate= write? data_in: reg6ToUpdate;	  //if write= 1 and writenum= 110 
-		3'b111: reg7ToUpdate= write? data_in: reg7ToUpdate; 	//if write= 1 and writenum= 111 
-		default: {reg0ToUpdate,reg1ToUpdate,reg2ToUpdate,reg3ToUpdate,reg4ToUpdate,reg5ToUpdate,reg6ToUpdate,reg7ToUpdate}= {112{1'bx}};	//default all x
+			3'b000: reg0ToUpdate= write? data_in: reg0ToUpdate; 	//if write= 1 and writenum= 000
+			3'b001: reg1ToUpdate= write? data_in: reg1ToUpdate; 	//if write= 1 and writenum= 001 
+			3'b010: reg2ToUpdate= write? data_in: reg2ToUpdate; 	//if write= 1 and writenum= 010 
+			3'b011: reg3ToUpdate= write? data_in: reg3ToUpdate; 	//if write= 1 and writenum= 011 
+			3'b100: reg4ToUpdate= write? data_in: reg4ToUpdate; 	//if write= 1 and writenum= 100 
+			3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate	//if write= 1 and writenum= 101 
+			3'b110: reg6ToUpdate= write? data_in: reg6ToUpdate;	//if write= 1 and writenum= 110 
+			3'b111: reg7ToUpdate= write? data_in: reg7ToUpdate; 	//if write= 1 and writenum= 111 
+			default: {reg0ToUpdate,reg1ToUpdate,reg2ToUpdate,reg3ToUpdate,reg4ToUpdate,reg5ToUpdate,reg6ToUpdate,reg7ToUpdate}= {112{1'bx}};	//default all x
 		endcase
 	end
 
@@ -31,7 +31,6 @@ module Write( datapath_in, vsel, writenum, datapath_out);
 	DFlipFlop #(`WIDTH) loadreg5Data(clk, reg5ToUpdate, reg5);
 	DFlipFlop #(`WIDTH) loadreg6Data(clk, reg6ToUpdate, reg6);
 	DFlipFlop #(`WIDTH) loadreg7Data(clk, reg7ToUpdate, reg7);
-
 
 	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
 	assign data_in= vsel? datapath_in: datapath_out; 
