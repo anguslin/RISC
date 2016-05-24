@@ -1,7 +1,8 @@
 //Shift operations
-module Shift(B, BShift);
+module Shift(B, BShift, shift);
 
 	input [15:0] B;
+	input [1:0] shift;
 	output [15:0] BShift;
 
 	always @(*) begin
@@ -13,4 +14,5 @@ module Shift(B, BShift);
 			default: BShift= {`WIDTH{1'bx}};	//default all to x
 		endcase
 	end
+	
 endmodule
