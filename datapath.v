@@ -18,6 +18,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		) instantiateReg(
 	 	.clk(clk),
 		.loada(loada),
+		.loadb(loadb),
 		.write(write),
 		.readnum(readnum),
 		.reg0(reg0),
