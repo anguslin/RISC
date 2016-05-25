@@ -5,6 +5,7 @@ module shift(B, BShift, shift);
 	input [15:0] B;
 	input [1:0] shift;
 	output [15:0] BShift;
+	reg [15:0] BShift;
 
 	always @(*) begin
 		case(shift)
