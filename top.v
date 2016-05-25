@@ -1,9 +1,9 @@
 
 // DE1-SOC Interface Specification
 
-// clk input to datpath has rising edge when KEY0 is *pressed* 
-// LEDR9 is the status register output
-// HEX3, HEX2, HEX1, HEX0 are wired to datapath_out.
+// KEY0= rising lock edge (When pressed) 
+// LEDR9= status register output
+// HEX3, HEX2, HEX1, HEX0= wired to datapath_out for LED dispaly
 //
 // When SW[9] is set to 1, SW[7:0] changes the lower 8 bits of datpath_in.
 // (The upper 8-bits are hardwired to zero.) The LEDR[8:0] will show the
@@ -86,7 +86,6 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
           assign HEX5 = 7'b1111111;  // disabled
         endmodule
         
-        
         module input_iface(clk, SW, datapath_in, write, vsel, loada, loadb, asel, bsel, 
                            loadc, loads, readnum, writenum, shift, ALUop, LEDR);
           input clk;
@@ -125,19 +124,6 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
           assign LEDR = sel_sw ? ctrl_sw : {1'b0, datapath_in[7:0]};  
         endmodule         
         
-        
-        module vDFF(clk,D,Q);
-          parameter n=1;
-          input clk;
-          input [n-1:0] D;
-          output [n-1:0] Q;
-          reg [n-1:0] Q;
-        
-          always @(posedge clk)
-            Q = D;
-        endmodule
-        
-        
         // The sseg module below can be used to display the value of datpath_out on
         // the hex LEDS the input is a 4-bit value representing numbers between 0 and
         // 15 the output is a 7-bit value that will print a hexadecimal digit.  You
@@ -149,22 +135,7 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
           input [3:0] in;
           output [6:0] segs;
         
-          // NOTE: The code for sseg below is not complete: You can use your code from
-          // Lab4 to fill this in or code from someone else's Lab4.  
-          //
-          // IMPORTANT:  If you *do* use someone else's Lab4 code for the seven
-          // segment display you *need* to state the following three things in
-          // a file README.txt that you submit with handin along with this code: 
-          //
-          //   1.  First and last name of student providing code
-          //   2.  Student number of student providing code
-          //   3.  Date and time that student provided you their code
-          //
-          // You must also (obviously!) have the other student's permission to use
-          // their code.
-          //
-          // To do otherwise is considered plagiarism.
-          //
+          
           // One bit per segment. On the DE1-SoC a HEX segment is illuminated when
           // the input bit is 0. Bits 6543210 correspond to:
           //
