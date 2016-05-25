@@ -29,14 +29,14 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	end
 	
 	//Shift Operations
-	Shift instantiateShift(
+	shift #(width) instantiateShift(
 		.B(B), 
 		.BShift(BShift),
 		.shift(shift)
 	);
 	
 	//ALU Operations
-	ALU instatiateOperation(
+	ALU #(width) instatiateOperation(
 		.ALUop(ALUop), 
 		.Ain(Ain), 
 		.Bin(Bin), 
