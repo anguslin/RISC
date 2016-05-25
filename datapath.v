@@ -33,7 +33,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	 );
 	  
 	Computation #(
-		.width(`WIDTH)
+		.width(`WIDTH),
 		.statusWidth(`STATUSWIDTH) 
 		) instantiateComp(
 		.clk(clk), 
