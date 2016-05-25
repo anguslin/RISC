@@ -5,6 +5,7 @@ module ALU(ALUop, Ain, Bin, ALUComputedValue);
 	input [1:0] ALUop;
 	input [15:0] Ain, Bin;
 	output [15:0] ALUComputedValue;
+	reg [15:0] ALUComputedValue;
 
 	always @(*) begin
 		case(ALUop)
