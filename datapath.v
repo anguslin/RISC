@@ -1,4 +1,4 @@
-
+//Datapath module of the RISC
 module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, datapath_in, status, datapath_out);
 
 	//constants to define
@@ -13,6 +13,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	output status;
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	
+	//Instatiation of register module
 	register #(
 		.width(`WIDTH)
 		) instantiateReg(
@@ -32,7 +33,8 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.A(A),
 		.B(B)
 	 );
-	  
+	 
+	//Instatiation of computation module
 	computation #(
 		.width(`WIDTH),
 		.statusWidth(`STATUSWIDTH) 
@@ -51,6 +53,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.C(C)
 	);
 		
+	//Instatiation of write module
 	write #(
 		.width(`WIDTH)
 		) instantiateWrite(
@@ -71,4 +74,3 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.reg7(reg7)
 	);
 endmodule
-
