@@ -1,3 +1,4 @@
+//register module to load values stored in registers
 module register(clk, loada, loadb, write, readnum, reg0, reg1, reg2, reg3, reg4 ,reg5 ,reg6 ,reg7, A, B);
   
   	parameter width= 1;
