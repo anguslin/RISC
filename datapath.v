@@ -13,7 +13,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	output status;
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	
-	Register #(
+	register #(
 		.width(`WIDTH)
 		) instantiateReg(
 	 	.clk(clk),
@@ -32,7 +32,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.B(B)
 	 );
 	  
-	Computation #(
+	computation #(
 		.width(`WIDTH),
 		.statusWidth(`STATUSWIDTH) 
 		) instantiateComp(
@@ -50,7 +50,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.C(C)
 	);
 		
-	Write #(
+	write #(
 		.width(`WIDTH)
 		) instantiateWrite(
 		.clk(clk), 
@@ -69,6 +69,5 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.reg6(reg6), 
 		.reg7(reg7)
 	);
-	
 endmodule
 
