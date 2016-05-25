@@ -1,5 +1,6 @@
 module Write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
 
+	parameter width= 1;
 	input clk, vsel, write;
 	input [2:0] writenum;
 	input [15:0] C, datapath_in;
@@ -23,14 +24,14 @@ module Write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg
 	end
 
 	//Update registers on a clock
-	DFlipFlop #(`WIDTH) loadreg0Data(clk, reg0ToUpdate, reg0);
-	DFlipFlop #(`WIDTH) loadreg1Data(clk, reg1ToUpdate, reg1);
-	DFlipFlop #(`WIDTH) loadreg2Data(clk, reg2ToUpdate, reg2);
-	DFlipFlop #(`WIDTH) loadreg3Data(clk, reg3ToUpdate, reg3);
-	DFlipFlop #(`WIDTH) loadreg4Data(clk, reg4ToUpdate, reg4);
-	DFlipFlop #(`WIDTH) loadreg5Data(clk, reg5ToUpdate, reg5);
-	DFlipFlop #(`WIDTH) loadreg6Data(clk, reg6ToUpdate, reg6);
-	DFlipFlop #(`WIDTH) loadreg7Data(clk, reg7ToUpdate, reg7);
+	DFlipFlop #(width) loadreg0Data(clk, reg0ToUpdate, reg0);
+	DFlipFlop #(width) loadreg1Data(clk, reg1ToUpdate, reg1);
+	DFlipFlop #(width) loadreg2Data(clk, reg2ToUpdate, reg2);
+	DFlipFlop #(width) loadreg3Data(clk, reg3ToUpdate, reg3);
+	DFlipFlop #(width) loadreg4Data(clk, reg4ToUpdate, reg4);
+	DFlipFlop #(width) loadreg5Data(clk, reg5ToUpdate, reg5);
+	DFlipFlop #(width) loadreg6Data(clk, reg6ToUpdate, reg6);
+	DFlipFlop #(width) loadreg7Data(clk, reg7ToUpdate, reg7);
 
 	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
 	assign data_in= vsel? datapath_in: datapath_out; 
