@@ -43,4 +43,3 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 		.ALUComputedValue(ALUComputedValue)
 	);
 endmodule
-
