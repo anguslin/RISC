@@ -10,8 +10,8 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	reg statusComputed;
 	wire [15:0] Ain, Bin, BShift, ALUComputedValue;
 
-	//if asel= 1 set Ain= A value else set Ain= 0s 
-	assign Ain= asel? A: {width{1'b0}}; 
+	//if asel= 0 set Ain= A value else set Ain= 0s 
+	assign Ain= asel? {width{1'b0}}: A; 
 
 	//if bsel= 0 set Bin= to shifted B value else set Bin= to 11bits 0s + first 5 bits of datapath_in
 	assign Bin= bsel? {{11{1'b0}},datapath_in[4:0]}: BShift; 
