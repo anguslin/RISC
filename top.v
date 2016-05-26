@@ -41,7 +41,6 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
         input CLOCK_50;
         output [9:0] LEDR; 
         output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-        input CLOCK_50;
         wire [15:0] datapath_out, datapath_in;
         wire write, vsel, loada, loadb, asel, bsel, loadc, loads;
         wire [2:0] readnum, writenum;
