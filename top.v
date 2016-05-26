@@ -4,18 +4,18 @@
 // KEY0= rising lock edge (When pressed) 
 // LEDR9= status register output
 // HEX3, HEX2, HEX1, HEX0= wired to datapath_out for LED dispaly
-//
+
 // When SW[9] is set to 1, SW[7:0] changes the lower 8 bits of datpath_in.
 // (The upper 8-bits are hardwired to zero.) The LEDR[8:0] will show the
 // current control inputs (LED "on" means input has logic value of 1).
-//
+
 // When SW[9] is set to 0, SW[8:0] changes the control inputs to the datapath
 // as listed in the table below.  Note that the datapath has three main
 // stages: register read, execute and writeback.  On any given clock cycle,
 // you should only need to configure one of these stages so some switches are
 // reused.  LEDR[7:0] will show the lower 8-bits of datapath_in (LED "on"
 // means corresponding input has logic value of 1).
-//
+
 // control signal(s)  switch(es)
 // ~~~~~~~~~~~~~~~~~  ~~~~~~~~~       
 // <<register read stage>>
@@ -90,44 +90,44 @@ endmodule
 //Two possibilities depending on value of SW[9]
 module input_iface(clk, SW, datapath_in, write, vsel, loada, loadb, asel, bsel, loadc, loads, readnum, writenum, shift, ALUop, LEDR);
 
-          input clk;
-          input [9:0] SW;
-          output [15:0] datapath_in;
-          output write, vsel, loada, loadb, asel, bsel, loadc, loads;
-          output [2:0] readnum, writenum;
-          output [1:0] shift, ALUop;
-          output [8:0] LEDR;
+        input clk;
+        input [9:0] SW;
+        output [15:0] datapath_in;
+        output write, vsel, loada, loadb, asel, bsel, loadc, loads;
+        output [2:0] readnum, writenum;
+        output [1:0] shift, ALUop;
+        output [8:0] LEDR;
         
-          wire sel_sw = SW[9];  
+        wire sel_sw = SW[9];  
         
-          // When SW[9] is set to 1, SW[7:0] changes the lower 8 bits of datpath_in.
-          wire [15:0] datapath_in_next = sel_sw ? {8'b0,SW[7:0]} : datapath_in;
-          vDFF #(16) DATA(clk,datapath_in_next,datapath_in);
+        // When SW[9] is set to 1, SW[7:0] changes the lower 8 bits of datpath_in.
+        wire [15:0] datapath_in_next = sel_sw ? {8'b0,SW[7:0]} : datapath_in;
+        vDFF #(16) DATA(clk,datapath_in_next,datapath_in);
         
-          // When SW[9] is set to 0, SW[8:0] changes the control inputs 
-          wire [8:0] ctrl_sw;
-          wire [8:0] ctrl_sw_next = sel_sw ? ctrl_sw : SW[8:0];
-          vDFF #(9) CTRL(clk,ctrl_sw_next,ctrl_sw);
+        // When SW[9] is set to 0, SW[8:0] changes the control inputs 
+        wire [8:0] ctrl_sw;
+        wire [8:0] ctrl_sw_next = sel_sw ? ctrl_sw : SW[8:0];
+        DFlipFlop #(9) CTRL(clk,ctrl_sw_next,ctrl_sw);
         
-          assign {readnum,vsel,loada,loadb,shift,asel,bsel,ALUop,loadc,loads,writenum,write}={
+        assign {readnum,vsel,loada,loadb,shift,asel,bsel,ALUop,loadc,loads,writenum,write}={
                  //readnum       vsel        loada       loadb       shift         asel        bse         ALUop         loadc       loads       writenum      write
                    ctrl_sw[3:1], ctrl_sw[4], ctrl_sw[5], ctrl_sw[6], ctrl_sw[2:1], ctrl_sw[3], ctrl_sw[4], ctrl_sw[6:5], ctrl_sw[7], ctrl_sw[8], ctrl_sw[3:1], ctrl_sw[0]};
-          // LEDR[7:0] shows other bits
-          assign LEDR = sel_sw ? ctrl_sw : {1'b0, datapath_in[7:0]};  
+        // LEDR[7:0] shows other bits
+        assign LEDR = sel_sw ? ctrl_sw : {1'b0, datapath_in[7:0]};  
 endmodule         
         
 //module to display the value of datpath_out DE1-SoC
 
- // One bit per segment on the DE1-SoC a HEX segment is illuminated depending on the input from datapath_out
-          //The HEX display bits are as follows:
+// One bit per segment on the DE1-SoC a HEX segment is illuminated depending on the input from datapath_out
+//The HEX display bits are as follows:
           
-          //    0000
-          //   5    1
-          //   5    1
-          //    6666
-          //   4    2
-          //   4    2
-          //    3333
+//    0000
+//   5    1
+//   5    1
+//    6666
+//   4    2
+//   4    2
+//    3333
           
 module HEXDisplay(inValue, display);
         input [3:0] inValue;
