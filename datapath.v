@@ -1,3 +1,5 @@
+//module to control the datapath
+
 module datapath_tb();
 
 	reg clk_SIM, loada_SIM, loadb_SIM, write_SIM, vsel_SIM, asel_SIM, bsel_SIM, loadc_SIM, loads_SIM;
