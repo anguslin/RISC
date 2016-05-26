@@ -6,32 +6,33 @@ module write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg
 	input [15:0] C, datapath_in;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	wire [15:0] data_in;
-	reg [15:0] reg0ToUpdate, reg1ToUpdate, reg2ToUpdate, reg3ToUpdate, reg4ToUpdate, reg5ToUpdate, reg6ToUpdate, reg7ToUpdate;
-	
-	//Update based on clock
+	reg [7:0] regSelect;	
+
+	//Update based on clock 
+	//regSelect chooses which register to update -> 1 means update 
 	always @(*) begin
 		case(writenum)
-			3'b000: reg0ToUpdate= write? data_in: reg0ToUpdate; 	//if write= 1 and writenum= 000
-			3'b001: reg1ToUpdate= write? data_in: reg1ToUpdate; 	//if write= 1 and writenum= 001 
-			3'b010: reg2ToUpdate= write? data_in: reg2ToUpdate; 	//if write= 1 and writenum= 010 
-			3'b011: reg3ToUpdate= write? data_in: reg3ToUpdate; 	//if write= 1 and writenum= 011 
-			3'b100: reg4ToUpdate= write? data_in: reg4ToUpdate; 	//if write= 1 and writenum= 100 
-			3'b101: reg5ToUpdate= write? data_in: reg5ToUpdate;	//if write= 1 and writenum= 101 
-			3'b110: reg6ToUpdate= write? data_in: reg6ToUpdate;	//if write= 1 and writenum= 110 
-			3'b111: reg7ToUpdate= write? data_in: reg7ToUpdate; 	//if write= 1 and writenum= 111 
-			default: {reg0ToUpdate,reg1ToUpdate,reg2ToUpdate,reg3ToUpdate,reg4ToUpdate,reg5ToUpdate,reg6ToUpdate,reg7ToUpdate}= {112{1'bx}};	//default all x
+			3'b000: regSelect= write? 8'b00000001: 8'b00000000; 	//if write= 1 and writenum= 000 
+			3'b001: regSelect= write? 8'b00000010: 8'b00000000; 	//if write= 1 and writenum= 001 
+			3'b010: regSelect= write? 8'b00000100: 8'b00000000; 	//if write= 1 and writenum= 010 
+			3'b011: regSelect= write? 8'b00001000: 8'b00000000; 	//if write= 1 and writenum= 011 
+			3'b100: regSelect= write? 8'b00010000: 8'b00000000; 	//if write= 1 and writenum= 100 
+			3'b101: regSelect= write? 8'b00100000: 8'b00000000;	//if write= 1 and writenum= 101 
+			3'b110: regSelect= write? 8'b01000000: 8'b00000000;	//if write= 1 and writenum= 110 
+			3'b111: regSelect= write? 8'b10000000: 8'b00000000; 	//if write= 1 and writenum= 111 
+			default: regSelect= {8{1'bx}};				//default all x
 		endcase
 	end
 
 	//Update registers on a clock
-	DFlipFlop #(width) loadreg0Data(clk, reg0ToUpdate, reg0);
-	DFlipFlop #(width) loadreg1Data(clk, reg1ToUpdate, reg1);
-	DFlipFlop #(width) loadreg2Data(clk, reg2ToUpdate, reg2);
-	DFlipFlop #(width) loadreg3Data(clk, reg3ToUpdate, reg3);
-	DFlipFlop #(width) loadreg4Data(clk, reg4ToUpdate, reg4);
-	DFlipFlop #(width) loadreg5Data(clk, reg5ToUpdate, reg5);
-	DFlipFlop #(width) loadreg6Data(clk, reg6ToUpdate, reg6);
-	DFlipFlop #(width) loadreg7Data(clk, reg7ToUpdate, reg7);
+	DFlipFlopAllow #(.width(width)) loadreg0Data(clk, regSelect[0], data_in, reg0);
+	DFlipFlopAllow #(.width(width)) loadreg1Data(clk, regSelect[1], data_in, reg1);
+	DFlipFlopAllow #(.width(width)) loadreg2Data(clk, regSelect[2], data_in, reg2);
+	DFlipFlopAllow #(.width(width)) loadreg3Data(clk, regSelect[3], data_in, reg3);
+	DFlipFlopAllow #(.width(width)) loadreg4Data(clk, regSelect[4], data_in, reg4);
+	DFlipFlopAllow #(.width(width)) loadreg5Data(clk, regSelect[5], data_in, reg5);
+	DFlipFlopAllow #(.width(width)) loadreg6Data(clk, regSelect[6], data_in, reg6);
+	DFlipFlopAllow #(.width(width)) loadreg7Data(clk, regSelect[7], data_in, reg7);
 
 	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
 	assign data_in= vsel? datapath_in: datapath_out; 
