@@ -1,5 +1,5 @@
 //Datapath module of the RISC
-module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, datapath_in, status, datapath_out);
+module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, mdata, sximm5, sximm8, status, datapath_out);
 
 	//constants to define
 	`define WIDTH 16
@@ -8,7 +8,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	input clk, loada, loadb, write, vsel, asel, bsel, loadc, loads;
 	input [2:0] readnum, writenum;
 	input [1:0] shift, ALUop;
-	input [15:0] datapath_in;
+	input [15:0] mdata, sximm5, sximm8;
 	output [15:0] datapath_out;
 	output [2:0] status;
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
@@ -46,9 +46,10 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.loads(loads), 
 		.shift(shift), 
 		.ALUop(ALUop), 
-		.datapath_in(datapath_in), 
+		.mdata(mdata), 
 		.A(A), 
 		.B(B), 
+		.sximm5(sximm5),
 		.status(status), 
 		.C(C)
 	);
@@ -62,7 +63,8 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.write(write),
 		.writenum(writenum), 
 		.C(C), 
-		.datapath_in(datapath_in), 
+		.mdata(mdata), 
+		.sximm8(sximm8),
 		.datapath_out(datapath_out), 
 		.reg0(reg0), 
 		.reg1(reg1), 
