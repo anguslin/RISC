@@ -1,9 +1,8 @@
-module operation (Ain, Bin, status, overflow, addSubVals, andVals, notBVal, sub, computedValue);
+module operation (Ain, Bin, overflow, addSubVals, andVals, notBVal, sub, computedValue);
 
         parameter width= 1;
         input [width-1:0] Ain, Bin;
         input overflow, addSubVals, andVals, notBVal, sub;
-        output [2:0] status;
         output [width-1:0] computedValue;
         wire sign, lastNonSign;
         
