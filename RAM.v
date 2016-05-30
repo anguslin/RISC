@@ -14,8 +14,9 @@ module RAM(clk, readAddress, writeAddress, write, in, out);
         initial $readmemb(filename, mem);
         
         always @ (posedge clk) begin
-                if (write)
+                if (write) begin
                         mem[writeAddress] <= din;
+                end
                 out <= mem[readAddress]; 
         end
 endmodule
