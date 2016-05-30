@@ -1,9 +1,9 @@
-module write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
+module write(clk, vsel, write, writenum, C, mdata, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
 
 	parameter width= 1;
 	input clk, vsel, write;
 	input [2:0] writenum;
-	input [15:0] C, datapath_in;
+	input [15:0] C, mdata;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	wire [15:0] data_in;
 	reg [7:0] regSelect;	
@@ -35,7 +35,7 @@ module write(clk, vsel, write, writenum, C, datapath_in, datapath_out, reg0, reg
 	DFlipFlopAllow #(.width(width)) loadreg7Data(clk, regSelect[7], data_in, reg7);
 
 	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
-	assign data_in= vsel? datapath_in: datapath_out; 
+	assign data_in= vsel? mdata: datapath_out; 
 
 	assign datapath_out= C; 
 	
