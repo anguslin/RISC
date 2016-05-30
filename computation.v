@@ -8,6 +8,7 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	output status;
 	output [15:0] C;
 	reg statusComputed;
+	wire overflow;
 	wire [15:0] Ain, Bin, BShift, ALUComputedValue;
 
 	//if asel= 0 set Ain= A value else set Ain= 0s 
@@ -42,4 +43,12 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 		.Bin(Bin), 
 		.ALUComputedValue(ALUComputedValue)
 	);
+	
+	//status Update
+	status #(width) instatiateStatus(
+	.ALUComputedValue(ALUComputedValue), 
+	.status(status), 
+	.overflow(overflow)
+	);
+
 endmodule
