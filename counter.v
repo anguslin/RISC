@@ -2,7 +2,7 @@
 
 module counter(reset, loadpc, msel, out, C);
         
-        `define COUNTWIDTH 8;
+        `define COUNTWIDTH 8
         input reset, loadpc, msel;
         input [15:0] C;
         output [7:0] out;
