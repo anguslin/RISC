@@ -1,11 +1,11 @@
-module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, B, sximm5, status, C);
+module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, status, C);
 
 	parameter width= 1;
 	parameter statusWidth= 1;
 	input clk, asel, bsel, loadc, loads;
 	input [1:0] shift, ALUop;
-	input [15:0] datapath_in, A, B, sximm5;
-	output status;
+	input [15:0] A, B, sximm5;
+	output [2:0] status;
 	output [15:0] C;
 	reg statusComputed;
 	wire overflow;
@@ -20,14 +20,6 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	//Clock updates for status and C
 	DFlipFlopAllow #(statusWidth) loadStatusData(clk, loads, statusComputed, status); 	//status= running on a clock
 	DFlipFlopAllow #(width) loadCData(clk, loadc, ALUComputedValue, C); 		//C= running on a clock
-
-	//Values for ALU and status
-	always @(*) begin
-		case(ALUComputedValue)
-			16'b0000000000000000: statusComputed= 1; 	//if all 0 then status value to be updated will be 0 
-			default: statusComputed= 0;			//if not all 0 then status value to be updated will be 1
-		endcase
-	end
 	
 	//Shift Operations
 	shift #(width) instantiateShift(
@@ -47,7 +39,7 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, datapath_in, A, 
 	//status Update
 	status #(width) instatiateStatus(
 	.ALUComputedValue(ALUComputedValue), 
-	.status(status), 
+	.status(statusComputed), 
 	.overflow(overflow)
 	);
 
