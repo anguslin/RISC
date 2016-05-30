@@ -12,6 +12,6 @@ module counter(reset, loadpc, msel, out, C);
         assign out = msel? C[7:0] : countOut;
         assign outToBeUpdated= reset? 8'b00000000 : loadValue;
         //update on rising clock
-        DFlipFlop #(`COUNTWIDTH) loadOut(clk, countOutToBeUpdated, countOut); 
+        DFlipFlop #(`COUNTWIDTH) loadCountOut(clk, countOutToBeUpdated, countOut); 
 
 endmodule
