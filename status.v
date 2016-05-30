@@ -1,8 +1,10 @@
 module status(ALUComputedValue, status, overflow);
 
+        parameter width = 1;
+        
         output [2:0] status;
         output overflow;
-        wire [15:0] ALUComputedValue;
+        wire [width-1:0] ALUComputedValue;
         wire zeroVal;
         
         //Values status if all 0s
@@ -16,6 +18,6 @@ module status(ALUComputedValue, status, overflow);
         //status[2]= overflow flag
         //status[1]= negative flag
         //status[0]= zero flag
-        assign status = {overflow, ALUComputedValue[15], zeroVal};
+        assign status = {overflow, ALUComputedValue[width-1], zeroVal};
 
 endmodule
