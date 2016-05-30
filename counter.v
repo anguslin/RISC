@@ -1,6 +1,6 @@
 //module for program counter
 
-module counter();
+module counter(reset, loadpc, out);
         
         `define countWidth 8;
         input reset, loadpc;
