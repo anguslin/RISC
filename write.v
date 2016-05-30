@@ -1,9 +1,11 @@
-module write(clk, vsel, write, writenum, C, mdata, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
+module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
 
 	parameter width= 1;
-	input clk, vsel, write;
+	input clk, write;
+	input [1:0] vsel;
 	input [2:0] writenum;
-	input [15:0] C, mdata;
+	input [7:0] PC;
+	input [15:0] C, mdata, sximm8;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	wire [15:0] data_in;
 	reg [7:0] regSelect;	
@@ -34,9 +36,14 @@ module write(clk, vsel, write, writenum, C, mdata, datapath_out, reg0, reg1, reg
 	DFlipFlopAllow #(.width(width)) loadreg6Data(clk, regSelect[6], data_in, reg6);
 	DFlipFlopAllow #(.width(width)) loadreg7Data(clk, regSelect[7], data_in, reg7);
 
-	//if vsel= 1 input values from datapath_in to data_in else data_in= datapath_in
-	assign data_in= vsel? mdata: datapath_out; 
-
+	//update data_in depending on value of vsel
+	always @(*) begin
+		case(vsel)
+			00: data_in= mdata; 
+			01: data_in= sximm8;
+			10: data_in= {8'b00000000, PC};
+			11: data_in= datapath_out;
+			
 	assign datapath_out= C; 
 	
 endmodule
