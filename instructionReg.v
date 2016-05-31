@@ -1,7 +1,7 @@
-module instructionReg(mdata, loadir, instruction);
+module instructionReg(clk, mdata, loadir, instruction);
         
+        input clk, loadir;
         input [15:0] mdata;
-        input loadir;
         output [15:0] instruction;
         
         //Update instruction on a clock depending on (loadir)
