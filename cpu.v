@@ -1,5 +1,5 @@
 module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, sximm5, sximm8);
-        input [2:0] nsel;
+        input [1:0] nsel;
         output [2:0] opcode, readnum, writenum;
         output [1:0] ALUop, op, shift;
 
@@ -40,7 +40,7 @@ module cpu();
 wire [3:0] currentState, nextState, nextStateToBeUpdated; 
 wire [2:0] opcode;
 wire [1:0] operation;
-wire [14:0] inputData;
+wire [13:0] inputData;
 
 //Operation Code
 `define MOV 3'b110
@@ -65,7 +65,7 @@ wire [14:0] inputData;
 `define MDATA 2'b00
 `define SXIMM8 2'b01
 `define ZEROANDPC 2'b10
-`define C 1'b1
+`define C 2'b11 
 
 //TRUE OR FALSE
 `define ON 1'b1
@@ -74,24 +74,65 @@ wire [14:0] inputData;
 //State Updates
 DFlipFlop #(4) StateUpdate(clk, nextStateToBeUpdated, nextState);
 
-//All outputs OTHER THAN RESET ADD RESET
-assign inputData = {nsel, loada, loadb, write, vsel, asel, bsel, loadc, loads, loadpc, msel, mwrite, loadir}
+//initial read -> Set reset to 0 to start program counter
+always @(*) begin
+	case(inputData)
+		14'bxxxxxxxxxxxxxx: reset= 1;
+		default: reset= 0;
+	endcase
+end
 
+//All outputs needed for module instantiations
+assign inputData[13:12] = nsel;
+assign inputData[11:10] = vsel;
+assign inputData[9] = loada;
+assign inputData[8] = loadb;
+assign inputData[7] = write;
+assign inputData[6] = asel;
+assign inputData[5] = bsel;
+assign inputData[4] = loadc;
+assign inputData[3] = loadpc;
+assign inputData[2] = msel;
+assign inputData[1] = mwrite;
+assign inputData[0] = loadir;
+
+//Specifications for what to do in each state 
+//Each state is separated by a rising clock update
 always @(*)
 	case(currentState, opcode, op)
-	//Loading Instruction
-	{`loadInstr, `opCodeNone, `operationNone}: {inputData, readAddress, writeAddress
+	//INSTRUCTION //Loading Instruction and Counter
+	//Load counter value
+	//loadPC = 1 mwrite = 0 loadir = 0, else = before -> Clk
+	{`loadPC, `opCodeNone, `operationNone}:	inputData = {inputData[13:4], 1'b1, inputData[2], 2'b00};
+	//load value into RAM
+	//loadPC = 0 mwrite = 0 msel = 0 loadir = 0 , else = before -> Clk
+	{`loadRAM, `opCodeNone, `operationNone}: inputData = {inputData[13:4], 4'b0001};
+	//load instruction
+	//loadPC = 0 mwrite = 0 loadir = 1, else = before -> Clk
+	{`loadIR, `opCodeNone, `operaitonNone}: inputData = {inputData[13:4], 1'b0, inputData[2], 2'b01}
 	
-	{loadpc, reset, msel, write, loadir} = {`ON, `OFF, `OFF, `OFF, ON}
-	//Move value of sximm8 into Rn register
-	{`writeInstrToRn, `MOV, `AND}: {nsel, vsel, write} ={`RN,`SXIMM8VSEL,`ON};
-	//Write shifted value of Rm register into Rd register
-	{`writeShiftedRmToRd, `MOV, `ADD}: {nsel,bsel ={`RM, `ON,
+	
+	//INSTRUCTION 1 //Write value of sximm8 into Rn register
+	//nsel = Rn Vsel = SXIMM8 write = 1 loadir = 0  -> Clk
+	{`writeInstrToRn, `MOV, `AND}: inputData = {`RN, `SXIMM8, inputData[9:8], 1'b1, inputData[6:1], 1'b0};
+	
+	//INSTRUCTION 2 //Write shifted value of Rm register into Rd register 
+	//read value from RM register and put in B, loadb = 1 and loada = 0 and write = 0->Clock
+	//nsel = RM, loada = 0 loadb = 1 write = 0
+	{`readRmToB, `MOV, `ADD}:			inputData = {`RM, inputData[11:10], 3'b010, inputData[6:1], 1'b0}
+	
+	//read value from RM register and put in B (loadb = 1) ->Clock
+	//set bsel = 0 and asel = 1 (to load 16 bit 0s) and loadc = 1 ->Clock
+	//set vsel = `C and write = 1 nsel = `Rd ->Clock
+	//load instruction
+	
 	
 //States
-`define PCZero 4'b0000
-`define writeInstrToRn 4'b0001
-`define loadInstr 4'b0010
+`define writeInstrToRn 4'b0000
+`define loadPC 4'b0001
+`define loadRAM 4'b0010
+`define loadIR 4'b0011
+`define writeShiftedRmToRd 4'b0100
 
 	
 //instr 2 Reads Rm (nsel = 10) into datapath reg B, sets asel = 1 (to get all 0s), in the ALU it adds together to put in register C -> then written to Rd
