@@ -7,7 +7,7 @@ module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg
 	input [7:0] PC;
 	input [15:0] C, mdata, sximm8;
 	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
-	wire [15:0] data_in;
+	reg [15:0] data_in;
 	reg [7:0] regSelect;	
 
 	//Update based on clock 
@@ -43,7 +43,10 @@ module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg
 			01: data_in= sximm8;
 			10: data_in= {8'b00000000, PC};
 			11: data_in= datapath_out;
-			
+		endcase
+	end
+	
+	//Put C value into datapath_out		
 	assign datapath_out= C; 
 	
 endmodule
