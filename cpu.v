@@ -5,24 +5,20 @@ module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, s
 
 module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, mdata, sximm5, sximm8, status, datapath_out);
 	input clk, loada, loadb, write, vsel, asel, bsel, loadc, loads;
-	input [1:0] shift, ALUop;
+	
 	
 module counter(clk, reset, loadpc, msel, C,);
         input clk, reset, loadpc, msel;
       
-assign {nsel, loada, loadb, write, vsel, asel, bsel, loadc, loads, shift, ALUop, reset, loadpc, msel, mwrite readAddress, writeAddress}
-
        
 RAM #(16,8,"data.txt") RAMInstantiate(
                 (~KEY[0])		inp
-                (readAddress), 		inp
-                (writeAddress)		inp
+                (address), 		inp
                 (mwrite), 		inp
                 
 module instructionReg(clk, mdata, loadir, instruction);
         
         input clk, loadir;
-        output [15:0] instruction;
         
         
 
@@ -41,9 +37,10 @@ module instructionReg(clk, mdata, loadir, instruction);
 
 module cpu();
 
-wire [3:0] currentState, nextState; 
-wire [2:0] opCode;
+wire [3:0] currentState, nextState, nextStateToBeUpdated; 
+wire [2:0] opcode;
 wire [1:0] operation;
+wire [14:0] inputData;
 
 //Operation Code
 `define MOV 3'b110
@@ -58,10 +55,6 @@ wire [1:0] operation;
 `define AND 2'b10
 `define MVN 2'b11
 `define operationNone 2'bxx
-
-
-//instr 2 Reads Rm (nsel = 10) into datapath reg B, sets asel = 1 (to get all 0s), in the ALU it adds together to put in register C -> then written to Rd
-`define REGTOREG 2'b00
 
 //REGISTER choosing
 `define RN 2'b00
@@ -78,17 +71,28 @@ wire [1:0] operation;
 `define ON 1'b1
 `define OFF 1'b0
 
+//State Updates
+DFlipFlop #(4) StateUpdate(clk, nextStateToBeUpdated, nextState);
+
+//All outputs OTHER THAN RESET ADD RESET
+assign inputData = {nsel, loada, loadb, write, vsel, asel, bsel, loadc, loads, loadpc, msel, mwrite, loadir}
+
 always @(*)
-	case(currentstate, opcode, op)
+	case(currentState, opcode, op)
 	//Loading Instruction
-	{`loadInstr, `opCodeNone, `operationNone}: {loadpc, reset, msel, write, loadir} = {`ON, `OFF, `OFF, `OFF, ON}
+	{`loadInstr, `opCodeNone, `operationNone}: {inputData, readAddress, writeAddress
+	
+	{loadpc, reset, msel, write, loadir} = {`ON, `OFF, `OFF, `OFF, ON}
 	//Move value of sximm8 into Rn register
 	{`writeInstrToRn, `MOV, `AND}: {nsel, vsel, write} ={`RN,`SXIMM8VSEL,`ON};
 	//Write shifted value of Rm register into Rd register
 	{`writeShiftedRmToRd, `MOV, `ADD}: {nsel,bsel ={`RM, `ON,
+	
 //States
-`define writeInstrToRn 4'b0000
-`define loadInstr 4'b0001	
+`define PCZero 4'b0000
+`define writeInstrToRn 4'b0001
+`define loadInstr 4'b0010
+
 	
 //instr 2 Reads Rm (nsel = 10) into datapath reg B, sets asel = 1 (to get all 0s), in the ALU it adds together to put in register C -> then written to Rd
 
