@@ -1,7 +1,7 @@
 module RAM(clk, readAddress, writeAddress, write, in, out);
 
-        parameter dataWidth = 32;       //size of data in each address
-        parameter addrWidth = 4;        //size of address
+        parameter dataWidth = 16;       //size of data in each address
+        parameter addrWidth = 8;        //size of address
         parameter filename = "data.txt";
 
         input clk, write;
