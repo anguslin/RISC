@@ -53,11 +53,20 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .sximm8(sximm8)
                 );
                      
-        instructionReg instructionRegInstantiate(
+        instructionReg instrRegInstantiate(
                 .clk(~KEY[0]), 
                 .mdata(mdata), 
                 .loadir(loadir), 
                 .instruction(instruction)
+                );
+                
+        RAM RAMInstantiate(
+                .clk(~KEY[0]), 
+                .readAddress(readAddress), 
+                .writeAddress(writeAddress), 
+                .write(write), 
+                .in(B),  //B is what is being written in
+                .out(mdata) //output is both instructions as well as values in the addresses
                 );
         
         // assigned HEX display to datapath_out values
