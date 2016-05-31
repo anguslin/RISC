@@ -15,7 +15,7 @@ module RAM(clk, readAddress, writeAddress, write, in, out);
         
         always @ (posedge clk) begin
                 if (write) begin
-                        mem[writeAddress] <= din;
+                        mem[writeAddress] <= in;
                 end
                 out <= mem[readAddress]; 
         end
