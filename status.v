@@ -2,10 +2,10 @@ module status(ALUComputedValue, status, overflow);
 
         parameter width = 1;
         
-        output [2:0] status;
+	input [width-1:0] ALUComputedValue;
+	output [2:0] status;
         output overflow;
-        wire [width-1:0] ALUComputedValue;
-        wire zeroVal;
+        reg zeroVal;
         
         //Values status if all 0s
         	always @(*) begin
