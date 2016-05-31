@@ -14,7 +14,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
         wire write, vsel, loada, loadb, asel, bsel, loadc, loads, loadpc, reset, msel, mwrite;
         wire [2:0] readnum, writenum, nsel;
         wire [1:0] shift, ALUop, op;
-        wire [7:0] readAddress, writeAddress;
+        wire [7:0] address;
           
         datapath datapathInstantiate( 
                 .clk(~KEY[0]),
@@ -61,8 +61,8 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 
         RAM #(16,8,"data.txt") RAMInstantiate(
                 .clk(~KEY[0]), 
-                .readAddress(readAddress), 
-                .writeAddress(writeAddress), 
+                .readAddress(address), 
+                .writeAddress(address), 
                 .mwrite(mwrite), 
                 .in(B),                 //B is what is being written in
                 .out(mdata)             //output is both instructions as well as values in the addresses
@@ -74,7 +74,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .loadpc(loadpc), 
                 .msel(msel), 
                 .C(C)
-                .address(readAddress) //output of counter is the read address
+                .address(address) //output of counter is the read address
                 );
         
         // assigned HEX display to datapath_out values
