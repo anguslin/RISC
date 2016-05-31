@@ -68,6 +68,18 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .in(B),  //B is what is being written in
                 .out(mdata) //output is both instructions as well as values in the addresses
                 );
+                
+                
+                (clk, reset, loadpc, msel, C, address);
+                
+        counter counterInstantiate(
+                .clk(clk), 
+                .reset(reset), 
+                .loadpc(loadpc), 
+                .msel(msel), 
+                .C(C)
+                .address(readAddress) //output of counter is the read address
+                );
         
         // assigned HEX display to datapath_out values
         HEXDisplay HEX0Instantiate(datapath_out[3:0], HEX0);   
