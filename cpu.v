@@ -11,6 +11,26 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	input [2:0] readnum, writenum;
 	input [1:0] shift, ALUop;
 	input [15:0] mdata, sximm5, sximm8;
+	
+module counter(clk, reset, loadpc, msel, C,);
+        input clk, reset, loadpc, msel;
+        input [15:0] C;
+       
+RAM #(16,8,"data.txt") RAMInstantiate(
+                (~KEY[0])		inp
+                (readAddress), 		inp
+                (writeAddress)		inp
+                (write), 		inp
+                (B),    		inp       //B is what is being written in
+                (mdata) 		out   
+
+module instructionReg(clk, mdata, loadir, instruction);
+        
+        input clk, loadir;
+        input [15:0] mdata;
+        output [15:0] instruction;
+        
+        
 
 //OUTPUTS ARE THINGS I HAVE TO WORK WITH
 //INPUTS ARE THINGS I NEED TO PROVIDE
