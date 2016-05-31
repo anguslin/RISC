@@ -1,5 +1,5 @@
 //decoder module
-module decoder(instruction, nsel, opcode, Rn, Rd, Rm, readnum, writenum, ALUop, op, shift, sximm5, sximm8);
+module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, sximm5, sximm8);
         //inputs and outputs
         input[15:0] instruction;
         input [2:0] nsel;
