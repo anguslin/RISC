@@ -2,16 +2,19 @@
 
 module counter(clk, reset, loadpc, msel, out, C);
         
-        `define COUNTWIDTH 8
         input clk, reset, loadpc, msel;
         input [15:0] C;
         output [7:0] out;
-        wire [7:0] loadValue, countOut, countOutToBeUpdated;
+        wire [7:0] loadValue, addressOut, addressToBeUpdated;
         
-        assign loadValue = loadpc? out + 1'b1 : out;
-        assign out = msel? C[7:0] : countOut;
-        assign outToBeUpdated= reset? 8'b00000000 : loadValue;
+        //assign values
+        assign loadValue = loadpc? addressOut + 1'b1 : addressOut;
+        assign addressToBeUpdated= reset? 8'b00000000 : loadValue;
+        
         //update on rising clock
-        DFlipFlop #(`COUNTWIDTH) loadCountOut(clk, countOutToBeUpdated, countOut); 
-
+        DFlipFlop #(8) loadCountOut(clk, addressToBeUpdated, addressOut); 
+        
+        //address value to be input into RAM
+        assign address = msel? C[7:0] : addressOut;
+        
 endmodule
