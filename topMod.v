@@ -4,17 +4,17 @@
 // LEDR[9:7]= status register output
 // HEX3, HEX2, HEX1, HEX0= wired to datapath_out for LED display
 
-module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
+module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
         input [3:0] KEY;
-        input [9:0] SW;
         input CLOCK_50; //VERIFY THE PURPOSE OF THIS
         output [9:0] LEDR; 
         output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-        wire [15:0] datapath_out, mdata;
-        wire write, vsel, loada, loadb, asel, bsel, loadc, loads;
+        wire [15:0] datapath_out, mdata, B, C, sximm5, sximm8;
+        wire write, vsel, loada, loadb, asel, bsel, loadc, loads, loadpc, reset, msel;
         wire [2:0] readnum, writenum, nsel;
-        wire [1:0] shift, ALUop;
+        wire [1:0] shift, ALUop, op;
+        wire [7:0] readAddress, writeAddress;
           
         datapath datapathInstantiate( 
                 .clk(~KEY[0]),
@@ -39,7 +39,6 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .datapath_out(datapath_out)
                 );
                      
-                     
         decoder decoderInstantiate(
                 .instruction(mdata),
                 .nsel(nsel),
@@ -60,17 +59,14 @@ module top(KEY, SW, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .instruction(instruction)
                 );
                 
-        RAM RAMInstantiate(
+        RAM (16,8,"data.txt") RAMInstantiate(
                 .clk(~KEY[0]), 
                 .readAddress(readAddress), 
                 .writeAddress(writeAddress), 
                 .write(write), 
-                .in(B),  //B is what is being written in
-                .out(mdata) //output is both instructions as well as values in the addresses
+                .in(B),                 //B is what is being written in
+                .out(mdata)             //output is both instructions as well as values in the addresses
                 );
-                
-                
-                (clk, reset, loadpc, msel, C, address);
                 
         counter counterInstantiate(
                 .clk(clk), 
