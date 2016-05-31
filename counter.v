@@ -1,5 +1,5 @@
 //module for program counter
-module counter(clk, reset, loadpc, msel, out, C);
+module counter(clk, reset, loadpc, msel, C, address);
         
         input clk, reset, loadpc, msel;
         input [15:0] C;
