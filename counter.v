@@ -1,10 +1,9 @@
 //module for program counter
-
 module counter(clk, reset, loadpc, msel, out, C);
         
         input clk, reset, loadpc, msel;
         input [15:0] C;
-        output [7:0] out;
+        output [7:0] address;
         wire [7:0] loadValue, addressOut, addressToBeUpdated;
         
         //assign values
