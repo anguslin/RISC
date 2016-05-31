@@ -2,7 +2,7 @@
 module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, sximm5, sximm8);
         //inputs and outputs
         input[15:0] instruction;
-        input [2:0] nsel;
+        input [1:0] nsel;
         output [2:0] opcode, readnum, writenum;
         output [1:0] ALUop, op, shift;
         output [15:0] sximm5, sximm8;
