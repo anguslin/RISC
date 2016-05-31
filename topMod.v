@@ -59,7 +59,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .instruction(instruction)
                 );
                 
-        RAM (16,8,"data.txt") RAMInstantiate(
+        RAM #(16,8,"data.txt") RAMInstantiate(
                 .clk(~KEY[0]), 
                 .readAddress(readAddress), 
                 .writeAddress(writeAddress), 
