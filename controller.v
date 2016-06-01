@@ -1,5 +1,4 @@
 module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb, write, asel, bsel, loadc, loads, reset, loadpc, msel, mwrite, loadir, nsel, vsel );      
-
 	input clk;
         input [1:0] ALUop, op, shift;
         input [2:0] opcode, readnum, writenum;
@@ -14,6 +13,7 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 	reg [3:0] nextStateToBeUpdated;
 	reg [14:0] inputData;
 
+	
 	//PC States
 	//Initial State
 	`define initiatePC 4'b0000
@@ -85,25 +85,25 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 	//initial read -> Set reset to 0 to start program counter
 	always @(*) begin
 		casex(inputData)
-			15'bxxxxxxxxxxxxxxx: reset= 1;
+			15'bxxxxxxxxxxxxxxx: reset=1;
 			default: reset= 0;
 		endcase
 	end
 	
 	//All outputs needed for module instantiations
-	assign nsel=	inputData[14:13];
-	assign vsel=	inputData[12:11];
-	assign loada= 	inputData[10];
-	assign loadb=	inputData[9];
-	assign write=	inputData[8];
-	assign asel= 	inputData[7];
-	assign bsel= 	inputData[6];
-	assign loads=	inputData[5];
-	assign loadc= 	inputData[4];
-	assign loadpc= 	inputData[3];
-	assign msel= 	inputData[2];
-	assign mwrite= 	inputData[1];
-	assign loadir=	inputData[0];
+	assign nsel= inputData[14:13];
+	assign vsel= inputData[12:11];
+	assign loada= inputData[10];
+	assign loadb= inputData[9];
+	assign write= inputData[8];
+	assign asel= inputData[7];
+	assign bsel= inputData[6];
+	assign loads= inputData[5];
+	assign loadc= inputData[4];
+	assign loadpc= inputData[3];
+	assign msel= inputData[2];
+	assign mwrite= inputData[1];
+	assign loadir= inputData[0];
 	
 	
 	//Specifications for what to do in each state 
