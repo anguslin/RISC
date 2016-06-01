@@ -84,6 +84,9 @@ wire [14:0] inputData;
 `define readRd 5'b10001
 `define rdToMem 5'b10010
 
+//Initial State
+`define initiatePC 5'b10011
+
 //Operation Code
 `define MOV 3'b110
 `define ALU 3'b101
@@ -109,16 +112,22 @@ wire [14:0] inputData;
 `define ZEROANDPC 2'b10
 `define C 2'b11 
 
+
+
 //State Updates
-DFlipFlop #(4) StateUpdate(clk, nextStateToBeUpdated, nextState);
+//If reset, set program counter to 1
+assign nextState = reset? `initiatePC: nextStateToBeUpdated;
+//Update states based on clock
+DFlipFlop #(4) StateUpdate(clk, nextState, currentState);
 
 //initial read -> Set reset to 0 to start program counter
 always @(*) begin
 	case(inputData)
-		15'bxxxxxxxxxxxxxxx: reset= 1;
+		15'bxxxxxxxxxxxxxxx: reset=1;
 		default: reset= 0;
 	endcase
 end
+
 
 //All outputs needed for module instantiations
 assign inputData[14:13] = nsel;
@@ -140,7 +149,10 @@ assign inputData[0] = loadir;
 //Each state is separated by a rising clock update
 //At start of each instruction, only loadir = 1, everything else is set to 0 from the instruction states
 always @(*)
-	case(currentState, opcode, op)
+	case({currentState, opcode, op})
+	//Set everything to zero for initial or reset state
+	{`initiatePC, `opCodeNone, `operationNone}: inputData = {15'b000000000000000};
+	
 	//INSTRUCTION //Loading Instruction and Counter
 	//Load counter value
 	//loadPC = 1, else = 0 -> Clk //put all load values back into 0 when finished executing a command
@@ -158,14 +170,14 @@ always @(*)
 	
 	//INSTRUCTION 1 //Write value of sximm8 into Rn register
 	//nsel = Rn Vsel = SXIMM8 write = 1 loadir = 0  -> Clk
-	{`writeInstrToRn, `MOV, `AND}: inputData = {`RN, `SXIMM8, inputData[10:9], 1'b1, inputData[7:1], 1'b0};
+	{`instrFirst, `MOV, `AND}: inputData = {`RN, `SXIMM8, inputData[10:9], 1'b1, inputData[7:1], 1'b0};
 	
 	//----------
 	
 	//INSTRUCTION 2 //Write shifted value of Rm register into Rd register 
 	//read value from RM register 
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRm, `MOV, `ADD}: inputData = {`RM, inputData[12:1], 1'b0,};
+	{`instrFirst, `MOV, `ADD}: inputData = {`RM, inputData[12:1], 1'b0,};
 	
 	//put specified reading value in B
 	//loadb = 1, else = before -> Clk 
@@ -177,14 +189,14 @@ always @(*)
 	
 	//Put value of C into Rd register
 	//nsel = `RD vsel = `C write = 1, else = before -> Clk
-	{`writeCInRd, `MOV, `ADD}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+	{`instrLast, `MOV, `ADD}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
 	
 	//----------
 	
 	//INSTRUCTION 3 //Add values of Rn and shifted Rm and put it in Rd
 	//read value from RM register 
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRm, `ALU, `ADD}: inputData = {`RM, inputData[12:1], 1'b0,};
+	{`instrFirst, `ALU, `ADD}: inputData = {`RM, inputData[12:1], 1'b0,};
 	
 	//put specified reading value in B
 	//loadb = 1, else = before -> Clk 
@@ -204,14 +216,14 @@ always @(*)
 	
 	//Put Value of C into Rd
 	//nsel = `RD vsel = `C write = 1, else = before -> Clk
-	{`writeCInRd, `ALU, `ADD}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+	{`instrLast, `ALU, `ADD}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
 	
 	//----------
 	
 	//INSTRUCTION 4 //Find the status output of Rn - Shifted Rm 
 	//read the value of Rm
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRm, `ALU, `CMP}: inputData = {`RM, inputData[12:1], 1'b0,};
+	{`instrFirst, `ALU, `CMP}: inputData = {`RM, inputData[12:1], 1'b0,};
 	
 	//put specified reading value in register B
 	//loadb = 1 loada= 0, else = before -> Clk 
@@ -227,14 +239,14 @@ always @(*)
 	
 	//do subtraction computations and load in status
 	//asel = 0 bsel = 0 loads = 1, else - before -> Clk
-	{`aluSubOpAndPutInStatus, `ALU, `CMP}: inputData = {inputData[14:8], 3'b001, inputData[5:0]};
+	{`instrLast, `ALU, `CMP}: inputData = {inputData[14:8], 3'b001, inputData[5:0]};
 	
 	//----------
 	
 	//INSTRUCTION 5 //Compute Rn ANDed with Shifted Rm and put it in Rd
 	//read value from RM register 
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRm, `ALU, `AND}: inputData = {`RM, inputData[12:1], 1'b0,};
+	{`instrFirst, `ALU, `AND}: inputData = {`RM, inputData[12:1], 1'b0,};
 		
 	//put specified reading value in register B
 	//loadb= 1 loada= 0, else = before -> Clk 
@@ -254,14 +266,14 @@ always @(*)
 
 	//Put Value of C into Rd
 	//nsel = `RD vsel = `C write = 1, else = before -> Clk
-	{`writeCInRd, `ALU, `AND}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+	{`instrLast, `ALU, `AND}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
 	
 	//----------
 	
 	//INSTRUCTION 6 //Write NOTed shifted value of Rm register into Rd register 
 	//read value from RM register 
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRm, `ALU, `MVN}: inputData = {`RM, inputData[12:1], 1'b0,};
+	{`instrFirst, `ALU, `MVN}: inputData = {`RM, inputData[12:1], 1'b0,};
 	
 	//put specified reading value in B
 	//loada= 0 loadb = 1, else = before -> Clk 
@@ -273,14 +285,14 @@ always @(*)
 	
 	//Put value of C into Rd register
 	//nsel = `RD vsel = `C write = 1, else = before -> Clk
-	{`writeCInRd, `ALU, `MVN}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+	{`instrLast, `ALU, `MVN}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
 	
 	//----------
 	
 	//INSTRUCTION 7 //load memory from address specified by Rn + imm5 nad put it into RD
 	//read value from RN register
 	//nsel = `Rn (write already 0) loadir = 0, else = begore -> Clk
-	{`readRn, `LDR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
+	{`instrFirst, `LDR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
 	
 	//put specified reading value in A
 	//loadb = 0, loada = 1, else = before -> Clk
@@ -292,14 +304,14 @@ always @(*)
 	
 	//load address into Ram and put mdata from RAM output into register RD
 	//set msel = 1 mwrite = 0 vsel=`MDATA nsel=`RD 
-	{`memToRd, `LDR, `ADD}: inputData = {`RD, `MDATA, inputData[10:3], 2'b10, inputData[0]};
+	{`instrLast, `LDR, `ADD}: inputData = {`RD, `MDATA, inputData[10:3], 2'b10, inputData[0]};
 
 	//----------
 
 	//INSTRUCTION 8 //store value of register Rd into memory at address = sximm5+Rn
 	//read value from RN register
 	//nsel = `Rn (write already 0) loadir = 0, else = before -> Clk
-	{`readRn, `STR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
+	{`instrFirst, `STR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
 	
 	//put specified reading value in A
 	//loadb = 0, loada = 1, else = before -> Clk
@@ -319,9 +331,79 @@ always @(*)
 	
 	//update value in B with address from C into RAM 
 	//mwrite = 1 msel = 1, else = before -> Clk
-	{`rdToMem, `STR, `ADD}: inputData = {inputData[14:3], 2'b11, inputData[0]};
+	{`instrLast, `STR, `ADD}: inputData = {inputData[14:3], 2'b11, inputData[0]};
 
 	//----------
 	endcase
 end
+
+always @(*)
+	case({currentState, opcode, op})
+	//Counters and first and last parts of instructions
+	//Set counter to zero for initial or reset state
+	{`initiatePC, `opCodeNone, `operationNone}: nextStateToBeUpdated = `loadPC;
+	
+	//Loading Instruction and Counter
+	{`loadPC, `opCodeNone, `operationNone}:	nextStateToBeUpdated = `loadRAM;
+	{`loadRAM, `opCodeNone, `operationNone}: nextStateToBeUpdated = `loadIR;
+	
+	//When instruction loaded, move into first part of instruction
+	{`loadIR, `opCodeNone, `operaitonNone}: nextStateToBeUpdated = `instrFirst;
+	
+	//When last part of instruction executed, counter+1 to load next instruction
+	{`instrLast, `opCodeNone, `operaitonNone}: nextStateToBeUpdated = `loadPC;
+	//----------
+	
+	//INSTRUCTION 1 
+	{`instrFirst, `MOV, `AND}: nextStateToBeUpdated = `loadPC;
+	//----------
+	
+	//INSTRUCTION 2 
+	{`instrFirst, `MOV, `ADD}: nextStateToBeUpdated = `putInB;
+	{`putInB, `MOV, `ADD}: nextStateToBeUpdated = `aluMovOpAndPutInC;
+	{`aluMovOpAndPutInC, `MOV, `ADD}: nextStateToBeUpdated = `instrLast;
+	//----------
+	
+	//INSTRUCTION 3 
+	{`instrFirst, `ALU, `ADD}:  nextStateToBeUpdated = `putInB;
+	{`putInB, `ALU, `ADD}: nextStateToBeUpdated = `readRn;
+	{`readRn, `ALU, `ADD}: nextStateToBeUpdated = `putInA;
+	{`putInA, `ALU, `ADD}: nextStateToBeUpdated = `aluAddOpAndPutInC;
+	{`aluAddOpAndPutInC, `ALU, `ADD}: nextStateToBeUpdated = `instrLast;
+	//----------
+	
+	//INSTRUCTION 4 //Find the status output of Rn - Shifted Rm 
+	{`instrFirst, `ALU, `CMP}: nextStateToBeUpdated = `putInB;
+	{`putInB, `ALU, `CMP}: nextStateToBeUpdated = `readRn;
+	{`readRn, `ALU, `CMP}: nextStateToBeUpdated = `putInA;
+	{`putInA, `ALU, `CMP}: nextStateToBeUpdated = `instrLast;
+	//----------
+	
+	//INSTRUCTION 5 //Compute Rn ANDed with Shifted Rm and put it in Rd
+	{`instrFirst, `ALU, `AND}: nextStateToBeUpdated = `putInB;
+	{`putInB, `ALU, `AND}: nextStateToBeUpdated = `readRn;
+	{`readRn, `ALU, `AND}: nextStateToBeUpdated = `putInA;
+	{`putInA, `ALU, `AND}: nextStateToBeUpdated = `aluAndOpAndPutInC;
+	{`aluAndOpAndPutInC, `ALU, `AND}: nextStateToBeUpdated = `instrLast;
+	//----------
+	
+	//INSTRUCTION 6 //Write NOTed shifted value of Rm register into Rd register 
+	{`instrFirst, `ALU, `MVN}: nextStateToBeUpdated = `putInB;
+	{`putInB, `ALU, `MVN}: nextStateToBeUpdated = `aluNotMovOpAndPutInC;
+	{`aluNotMovOpAndPutInC, `ALU, `MVN}: nextStateToBeUpdated = `instrLast;
+	//----------
+	
+	//INSTRUCTION 7 //load memory from address specified by Rn + imm5 nad put it into RD
+	{`instrFirst, `LDR, `ADD}: nextStateToBeUpdated = `putInA;
+	{`putInA, `LDR, `ADD}: nextStateToBeUpdated = `aluMemLoadOpAndPutInC;
+	{`aluMemLoadOpAndPutInC, `LDR, `ADD}: nextStateToBeUpdated = `instrLast;
+	//----------
+
+	//INSTRUCTION 8 //store value of register Rd into memory at address = sximm5+Rn
+	{`instrFirst, `STR, `ADD}: nextStateToBeUpdated = `putInA;
+	{`putInA, `STR, `ADD}: nextStateToBeUpdated = `aluMemStoreOpAndPutInC;
+	{`aluMemStoreOpAndPutInC, `STR, `ADD}: nextStateToBeUpdated = `readRd;
+	{`readRd, `STR, `ADD}: nextStateToBeUpdated = `putInB;
+	{`putInB, `STR, `ADD}: nextStateToBeUpdated = `instrLast;
+	//----------
 
