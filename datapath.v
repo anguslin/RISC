@@ -13,7 +13,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	output [2:0] status;
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	
-	//Instatiation of register module
+	//Instantiation of register module
 	register #(
 		.width(`WIDTH)
 		) instantiateReg(
@@ -53,7 +53,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.C(C)
 	);
 		
-	//Instatiation of write module
+	//Instantiation of write module
 	write #(
 		.width(`WIDTH)
 		) instantiateWrite(
