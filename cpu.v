@@ -251,12 +251,6 @@ always @(*)
 	//----------
 	
 	
-	//INSTRUCTION 6 //Shift Rm and put it in Rd
-	//Read Rm
-	//Put Rm into B
-	//
-	
-	
 	//only loadir = 1, everything else is 0 
 	//INSTRUCTION 6 //Write NOTed shifted value of Rm register into Rd register 
 	
@@ -280,6 +274,43 @@ always @(*)
 	//---------------
 	
 	
+	//INSTRUCTION 7 //load memory from address specified by Rn + imm5 nad put it into RD
+	
+	//read value from RN register
+	//nsel = `Rn (write already 0) loadir = 0, else = begore -> Clk
+	{`readRn, `LDR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
+	
+	
+	//put specified reading value in A
+	//loadb = 0, loada = 1, else = before -> Clk
+	{`putInA, `LDR, `ADD}: inputData = {inputData[14:11], 2'b10, inputData[8:0]};
+
+	//load computed effective address into C
+	//bsel = 1 asel = 0 and loadc = 1, else = before -> Clk
+	{`aluMemLoadOpAndPutInC, `LDR, `ADD}: inputData = {inputData[14:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
+	
+	//load address into Ram and put mdata from RAM output into register RD
+	//set msel = 1 mwrite = 0 vsel=`MDATA nsel=`RD 
+	{`memToRd, `LDR, `ADD}: inputData = {`RD, `MDATA, inputData[10:3], 2'b10, inputData[0]};
+
+	//load instruction
+	//-----------
+
+
+	//INSTRUCTION 8 //store value of register Rd into memory at address = sximm5+Rn
+	//read address value from RN
+	//put value into register A
+	//set bsel = 1 to get sximm5 value and then set loads = 1 to load computed effective address into C
+	
+	//now read value from RD value
+	//Put specified reading value into B
+	//update value in B with address from C into RAM , mwrite = 1
+
+
+	{`readRn, `STR, `ADD}: inputData = 
+	
+	
+
 	
 	
 	
@@ -300,15 +331,17 @@ always @(*)
 `define loadRAM 5'b00010
 `define loadIR 5'b00011
 
+//MOV
 //Instruction 1 
 `define writeInstrToRn 5'b00100
 
-//Instruction 2
+//Instruction 2 
 `define readRm 5'b00101
 `define putInB 5'b00110
 `define aluMovOpAndPutInC 5'b00111
 `define writeCInRd 5'b01000
 
+//ALU
 //Instruction 3 -> Reused some from Instruction 2
 `define readRn 5'b01001
 `define `putInA 5'b01010
@@ -321,9 +354,13 @@ always @(*)
 `define aluAndOpAndPutInC 5'b01101
 
 //Instruction 6
-`define `aluNotMovOpAndPutInC 5'b01110
+`define aluNotMovOpAndPutInC 5'b01110
 
+//MEM
 //Instruction 7
+`define aluMemLoadOpAndPutInC 5'b01111
+`define memToRd 5'b10000
+
 
 
 
