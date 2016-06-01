@@ -19,7 +19,7 @@ module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, s
         assign Rd = instruction[7:5];
         assign Rm = instruction[2:0];
         
-        always@(*)
+        always@(*) begin
         	case(nsel)
 	        	00: tempReg = Rn; //nsel 00 = Rn
 	        	01: tempReg = Rd; //nsel 01 = Rd
