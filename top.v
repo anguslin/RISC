@@ -73,7 +73,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .reset(reset), 
                 .loadpc(loadpc), 
                 .msel(msel), 
-                .C(C)
+                .C(C),
                 .address(address) //output of counter is the read address
                 );
         
