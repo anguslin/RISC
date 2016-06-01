@@ -5,9 +5,9 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	`define WIDTH 16
 	`define STATUSWIDTH 3
 
-	input clk, loada, loadb, write, vsel, asel, bsel, loadc, loads;
+	input clk, loada, loadb, write, asel, bsel, loadc, loads;
 	input [2:0] readnum, writenum;
-	input [1:0] shift, ALUop;
+	input [1:0] shift, ALUop, vsel;
 	input [15:0] mdata, sximm5, sximm8;
 	output [15:0] datapath_out;
 	output [2:0] status;
