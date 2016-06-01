@@ -82,14 +82,6 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 	//Update states based on clock
 	DFlipFlop #(4) StateUpdate(clk, nextState, currentState);
 	
-	//initial read -> Set reset to 0 to start program counter
-	always @(*) begin
-		casex(inputData)
-			15'bxxxxxxxxxxxxxxx: reset=1;
-			default: reset= 0;
-		endcase
-	end
-	
 	//All outputs needed for module instantiations
 	assign nsel= inputData[14:13];
 	assign vsel= inputData[12:11];
