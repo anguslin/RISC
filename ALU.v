@@ -16,7 +16,7 @@ module ALU(ALUop, Ain, Bin, ALUComputedValue, overflow);
 	reg addSubVals, andVals, notBVal, sub;
        
 	always @(*) begin
-		case(ALUop)
+		case(ALUop) //Set the operation needed to be true and the rest to be false
 			`ADD: {addSubVals, andVals, notBVal, sub}= {4'b1000};	
 			`SUB: {addSubVals, andVals, notBVal, sub}= {4'b1001};		
 			`ANDVAL: {addSubVals, andVals, notBVal, sub}= {4'b0100};		
