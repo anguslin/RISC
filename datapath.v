@@ -13,6 +13,8 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	output [2:0] status;
 	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	
+	wire [7:0] PC; //no function currently
+	
 	//Instantiation of register module
 	register #(
 		.width(`WIDTH)
@@ -52,7 +54,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.status(status), 
 		.C(C)
 	);
-		
+
 	//Instantiation of write module
 	write #(
 		.width(`WIDTH)
@@ -64,6 +66,7 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 		.C(C), 
 		.mdata(mdata), 
 		.sximm8(sximm8),
+		.PC(PC),
 		.datapath_out(datapath_out), 
 		.reg0(reg0), 
 		.reg1(reg1), 
