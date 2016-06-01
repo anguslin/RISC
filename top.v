@@ -10,13 +10,11 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
         input CLOCK_50; 
         output [9:0] LEDR; 
         output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
-        wire [15:0] datapath_out, mdata, B, C, sximm5, sximm8;
-        wire write, vsel, loada, loadb, asel, bsel, loadc, loads, loadpc, reset, msel, mwrite;
-        wire [2:0] readnum, writenum, nsel;
-        wire [1:0] shift, ALUop, op;
+        wire [15:0] datapath_out, mdata, B, C, sximm5, sximm8, instruction;
+        wire write, loada, loadb, asel, bsel, loadc, loads, loadpc, reset, msel, mwrite;
+        wire [2:0] readnum, writenum, opcode;
+        wire [1:0] shift, ALUop, op, vsel, nsel;
         wire [7:0] address;
-          
-
 
         datapath datapathInstantiate( 
                 .clk(~KEY[0]),
@@ -47,12 +45,12 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .instruction(mdata),
                 .nsel(nsel),
                 .opcode(opcode), 
-                .readnum(Rn), 
+                .readnum(readnum), 
                 .writenum(writenum), 
                 .ALUop(ALUop), 
                 .op(op), 
                 .shift(shift), 
-                .sximm(sximm5), 
+                .sximm5(sximm5), 
                 .sximm8(sximm8)
                 );
                      
@@ -83,7 +81,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
         
         controller controllerInstantiate(
         .clk(~KEY[0]), 
-        .ALUop(AlUop), 
+        .ALUop(ALUop), 
         .op(op), 
         .shift(shift), 
         .opcode(opcode), 
