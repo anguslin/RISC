@@ -1,13 +1,13 @@
 module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, status, C);
 
 	parameter width= 1;
-	parameter statusWidth= 1;
+	parameter statusWidth= 3;
 	input clk, asel, bsel, loadc, loads;
 	input [1:0] shift, ALUop;
 	input [15:0] A, B, sximm5;
 	output [2:0] status;
 	output [15:0] C;
-	reg [2:0] statusComputed;
+	wire [2:0] statusComputed;
 	wire overflow;
 	wire [15:0] Ain, Bin, BShift, ALUComputedValue;
 
@@ -29,11 +29,12 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, st
 	);
 	
 	//ALU Operations
-	ALU #(width) instatiateOperation(
+	ALU #(width) instatiateALU(
 		.ALUop(ALUop), 
 		.Ain(Ain), 
 		.Bin(Bin), 
-		.ALUComputedValue(ALUComputedValue)
+		.ALUComputedValue(ALUComputedValue),
+		.overflow(overflow)
 	);
 	
 	//status Update
