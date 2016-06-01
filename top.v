@@ -7,7 +7,7 @@
 module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 
         input [3:0] KEY;
-        input CLOCK_50; //VERIFY THE PURPOSE OF THIS
+        input CLOCK_50; 
         output [9:0] LEDR; 
         output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
         wire [15:0] datapath_out, mdata, B, C, sximm5, sximm8;
@@ -16,6 +16,8 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
         wire [1:0] shift, ALUop, op;
         wire [7:0] address;
           
+
+
         datapath datapathInstantiate( 
                 .clk(~KEY[0]),
                 //register module
@@ -34,6 +36,8 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .writenum(writenum),
                 .write(write),  
                 .mdata(mdata),
+		.sximm5(sximm5),
+		.sximm8(sximm8),
                 // outputs
                 .status(LEDR[9:7]),
                 .datapath_out(datapath_out)
