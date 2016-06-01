@@ -69,7 +69,7 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 );
                 
         counter counterInstantiate(
-                .clk(clk), 
+                .clk(~KEY[0]), 
                 .reset(reset), 
                 .loadpc(loadpc), 
                 .msel(msel), 
@@ -77,6 +77,30 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
                 .address(address) //output of counter is the read address
                 );
         
+        controller controllerInstantiate(
+        .clk(~KEY[0]), 
+        .ALUop(AlUop), 
+        .op(op), 
+        .shift(shift), 
+        .opcode(opcode), 
+        .readnum(readnum), 
+        .writenum(writenum), 
+        .loada(loada), 
+        .loadb(loadb), 
+        .write(write), 
+        .asel(asel), 
+        .bsel(bsel), 
+        .loadc(loadc), 
+        .loads(loads), 
+        .reset(reset), 
+        .loadpc(loadpc), 
+        .msel(msel), 
+        .mwrite(mwrite), 
+        .loadir(loadir), 
+        .nsel(nsel), 
+        .vsel(vsel) 
+        );      
+
         // assigned HEX display to datapath_out values
         HEXDisplay HEX0Instantiate(datapath_out[3:0], HEX0);   
         HEXDisplay HEX1Instantiate(datapath_out[7:4], HEX1);
