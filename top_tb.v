@@ -20,8 +20,17 @@ top DUT (
 	);
        
 	initial begin
-		KEY_SIM[3:1] = 3'b000;
-		KEY_SIM[0] = 0;
+		KEY_SIM[3:0] = 4'b0011;
+		
+		#10;
+		KEY_SIM[1] = 1'b0;
+		#10;
+		KEY_SIM[0] = 1'b0;
+		#10;
+		KEY_SIM[0] = 1'b1;
+		#10;
+		KEY_SIM[1] = 1'b1;
+		#10;
 
 		repeat(10) begin
 			#10;
