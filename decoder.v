@@ -7,6 +7,7 @@ module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, s
         output [1:0] ALUop, op, shift;
         output [15:0] sximm5, sximm8;
         reg [2:0] tempReg;
+	wire [2:0] Rd, Rn, Rm;
         
         //assignments based off of instruction
         assign opcode = instruction[15:13];
@@ -24,7 +25,7 @@ module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, s
 	        	00: tempReg = Rn; //nsel 00 = Rn
 	        	01: tempReg = Rd; //nsel 01 = Rd
 	        	10: tempReg = Rm; //nsel 10 = Rm
-	        	default: tempReg = 2'bxx;
+	        	default: tempReg = 3'bxx;
         	endcase
         end
         
