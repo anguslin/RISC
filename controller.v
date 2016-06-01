@@ -1,4 +1,4 @@
-module finiteStateMachine(clk, Aluop, op, shift, opcode, readnum, writenum, loada, loadb, write, asel, bsel, loadc, loads, reset, loadpc, msel, mwrite, loadir, nsel, vsel );      
+module controller(clk, Aluop, op, shift, opcode, readnum, writenum, loada, loadb, write, asel, bsel, loadc, loads, reset, loadpc, msel, mwrite, loadir, nsel, vsel );      
 	input clk;
         input [1:0] ALUop, op, shift;
         input [2:0] opcode, readnum, writenum;
