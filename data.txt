@@ -1,0 +1,7 @@
+1101000000000001 //Put value of 1 into reg 0 MOV Rn(000) #<1>
+1100000000101000 //Take value in reg 0 shift one to left to make it 2 and then put it in reg 1
+1101001000001010 //Put value of 10 into reg 2
+//currently reg 0 = 1 and reg 1 = 2 and reg 2 = 10
+1000001000100010 //Take value in reg 1 and put it into memory 12 (adding sximm (2) + reg 2 (10) = 12
+//currently mem[12] = 2
+0110001001100010 //Load value memory 12 and put it into reg 3
