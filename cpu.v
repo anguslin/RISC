@@ -259,8 +259,8 @@ always @(*)
 	{`readRm, `ALU, `MVN}: inputData = {`RM, inputData[12:1], 1'b0,};
 	
 	//put specified reading value in B
-	//loadb = 1, else = before -> Clk 
-	{`putInB, `ALU, `MVN}: inputData = {inputData[14:10], 1'b1, inputData[8:0]};
+	//loada= 0 loadb = 1, else = before -> Clk 
+	{`putInB, `ALU, `MVN}: inputData = {inputData[14:11], 2'b01, inputData[8:0]};
 	
 	//Add A and Shifted B values and put into register C -> Clk
 	//bsel = 0 asel = 1 loadc = 1, else = before -> Clk
@@ -306,23 +306,32 @@ always @(*)
 	//Put specified reading value into B
 	//update value in B with address from C into RAM , mwrite = 1
 
+	//read value from RN register
+	//nsel = `Rn (write already 0) loadir = 0, else = before -> Clk
+	{`readRn, `STR, `ADD}: inputData = {`RN, inputData[12:1], 1'b0};
+	
+	//put specified reading value in A
+	//loadb = 0, loada = 1, else = before -> Clk
+	{`putInA, `STR, `ADD}: inputData = {inputData[14:11], 2'b10, inputData[8:0]};
 
-	{`readRn, `STR, `ADD}: inputData = 
+	//load computed effective address into C
+	//bsel = 1 asel = 0 and loadc = 1, else = before -> Clk
+	{`aluMemStoreOpAndPutInC, `STR, `ADD}: inputData = {inputData[14:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
 	
+	//read value from RD register
+	//nsel = `RD, else = before -> Clk
+	{`readRd, `STR, `ADD}: inputData = {`RD, inputData[12:0]};
 	
+	//put specified reading value in B
+	//loada = 0 loadb = 1, else = before -> Clk 
+	{`putInB, `STR, `ADD}: inputData = {inputData[14:11], 2'b01, inputData[8:0]};
+	
+	//update value in B with address from C into RAM 
+	//mwrite = 1 msel = 1, else = before -> Clk
+	{`rdToMem, `STR, `ADD}: inputData = {inputData[14:3], 2'b11, inputData[0]};
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	//load instruction
+	//---------------
 	
 //States
 //loading intructions
@@ -360,6 +369,11 @@ always @(*)
 //Instruction 7
 `define aluMemLoadOpAndPutInC 5'b01111
 `define memToRd 5'b10000
+
+//Instruction 8
+`define aluMemStoreOpAndPutInC 5'b10000
+`define readRd 5'b10001
+`define rdToMem 5'b10010
 
 
 
