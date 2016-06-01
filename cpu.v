@@ -122,9 +122,10 @@ always @(*)
 	
 	//only loadir = 1, everything else is 0 
 	//INSTRUCTION 2 //Write shifted value of Rm register into Rd register 
+	
 	//read value from RM register 
 	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
-	{`readRmToB, `MOV, `ADD}: inputData = {`RM, inputData[11:1], 1'b0,};
+	{`readRm, `MOV, `ADD}: inputData = {`RM, inputData[11:1], 1'b0,};
 	
 	//put specified reading value in B
 	//loadb = 1, else = before -> Clk 
@@ -132,7 +133,7 @@ always @(*)
 	
 	//Add A and Shifted B values and put into register C -> Clk
 	//bsel = 0 asel = 1 loadc = 1, else = before -> Clk
-	{`aluOpAndPutInC, `MOV, `ADD}: inputData = {inputData[13:7], 3'b101, inputData[3:0]};
+	{`aluMovOpAndPutInC, `MOV, `ADD}: inputData = {inputData[13:7], 3'b101, inputData[3:0]};
 	
 	//Put value of C into Rd register
 	//nsel = `RD vsel = `C write = 1, else = before -> Clk
@@ -141,6 +142,37 @@ always @(*)
 	//load instruction
 	//---------------
 	
+	//INSTRUCTION 3 Add values of Rn and and shifted Rm and put it in Rd
+	
+	//read value from RM register 
+	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
+	{`readRm, `ALU, `ADD}: inputData = {`RM, inputData[11:1], 1'b0,};
+	
+	//put specified reading value in B
+	//loadb = 1, else = before -> Clk 
+	{`putInB, `ALU, `ADD}: inputData = {inputData[13:9], 1'b1, inputData[6:0]};
+	
+	//read value from RN register
+	//nsel = `Rn (write already 0), else = begore -> Clk
+	{`readRn, `ALU, `ADD}: inputData = {`RN, inputData[11:0]};
+	
+	//put specified reading value in A
+	//loadb = 0, loada = 1, else = before -> Clk
+	{`putInA, `ALU, `ADD}: inputData = {inputData[13:10], 2'b10, inputData[7:0]};
+	
+	//do addition computations and load in register C
+	//asel = 0 bsel = 0 loadc = 1, else - before -> Clk
+	{`aluAddOpAndPutInC, `ALU, `ADD}: inputData = {inputData[13:7], 3'b001, inputData[3:0]};
+	
+	//Put Value into Rd
+	//nsel = `RD vsel = `C write = 1, else = before -> Clk
+	{`writeCInRd, `ALU, `ADD}: inputData = {`RD, `C, inputData[9:8], 1'b1, inputData[6:0]};
+	
+	//load instruction
+	//------------
+	
+	//INSTRUCTION 4 
+
 	
 //States
 //loading intructions
@@ -151,7 +183,16 @@ always @(*)
 //Instruction 1 
 `define writeInstrToRn 5'b00100
 //Instruction 2
-`define readRmToB 5'b00101
+`define readRm 5'b00101
 `define putInB 5'b00110
-`define aluOpAndPutInC 5'b00111
+`define aluMovOpAndPutInC 5'b00111
 `define writeCInRd 5'b01000
+`define readRn 5'b01001
+`define `putInA 5'b01010
+`define aluAddOpAndPutInC 5'b01011
+
+
+
+
+
+
