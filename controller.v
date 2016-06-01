@@ -1,15 +1,14 @@
 module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb, write, asel, bsel, loadc, loads, reset, loadpc, msel, mwrite, loadir, nsel, vsel );      
-	input clk;
+	input clk, reset;
         input [1:0] ALUop, op, shift;
         input [2:0] opcode, readnum, writenum;
-        output loada, loadb, write, asel, bsel, loadc, loads, reset, loadpc, msel, mwrite, loadir;
+        output loada, loadb, write, asel, bsel, loadc, loads, loadpc, msel, mwrite, loadir;
       	output [1:0] nsel, vsel;
         
 	wire [3:0] currentState, nextState; 
 	wire [2:0] opcode;
 	wire [1:0] operation;
 
-	reg reset;
 	reg [3:0] nextStateToBeUpdated;
 	reg [14:0] inputData;
 
@@ -285,7 +284,7 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 		casex({currentState, opcode, op})
 			//Counters and first and last parts of instructions
 			//Set counter to zero for initial or reset state
-			{`initiatePC, `opCodeNone, `operationNone}: nextStateToBeUpdated= `loadPC;
+			{`initiatePC, `opCodeNone, `operationNone}: nextStateToBeUpdated= `loadRAM;
 			
 			//Loading Instruction and Counter
 			{`loadPC, `opCodeNone, `operationNone}:	nextStateToBeUpdated= `loadRAM;
