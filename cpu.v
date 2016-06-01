@@ -250,6 +250,49 @@ always @(*)
 	//load instruction
 	//----------
 	
+	
+	//INSTRUCTION 6 //Shift Rm and put it in Rd
+	//Read Rm
+	//Put Rm into B
+	//
+	
+	
+	//only loadir = 1, everything else is 0 
+	//INSTRUCTION 6 //Write NOTed shifted value of Rm register into Rd register 
+	
+	//read value from RM register 
+	//nsel = RM loadir = 0 (write already 0), else = before -> Clk
+	{`readRm, `ALU, `MVN}: inputData = {`RM, inputData[12:1], 1'b0,};
+	
+	//put specified reading value in B
+	//loadb = 1, else = before -> Clk 
+	{`putInB, `ALU, `MVN}: inputData = {inputData[14:10], 1'b1, inputData[8:0]};
+	
+	//Add A and Shifted B values and put into register C -> Clk
+	//bsel = 0 asel = 1 loadc = 1, else = before -> Clk
+	{`aluNotMovOpAndPutInC, `ALU, `MVN}: inputData = {inputData[14:8], 2'b10, inputData[5], 1'b1, inputData[3:0]};
+	
+	//Put value of C into Rd register
+	//nsel = `RD vsel = `C write = 1, else = before -> Clk
+	{`writeCInRd, `ALU, `MVN}: inputData = {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+	
+	//load instruction
+	//---------------
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 //States
 //loading intructions
 `define writeInstrToRn 5'b00000
@@ -276,6 +319,11 @@ always @(*)
 
 //Instruction 5
 `define aluAndOpAndPutInC 5'b01101
+
+//Instruction 6
+`define `aluNotMovOpAndPutInC 5'b01110
+
+//Instruction 7
 
 
 
