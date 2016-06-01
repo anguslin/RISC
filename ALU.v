@@ -11,8 +11,6 @@ module ALU(ALUop, Ain, Bin, ALUComputedValue, overflow);
 	input [15:0] Ain, Bin;
 	output [15:0] ALUComputedValue;
 	output overflow;
-	reg [15:0] ALUComputedValue;
-	wire [15:0] computedValueTemp;
 	reg addSubVals, andVals, notBVal, sub;
        
 	always @(*) begin
@@ -25,8 +23,8 @@ module ALU(ALUop, Ain, Bin, ALUComputedValue, overflow);
 		endcase
 	end
 	
-	//Instatiate operation module to compute the specified operation
-	operation #(16) instatiateOperation(
+	//Instantiate operation module to compute the specified operation
+	operation #(16) instantiateOperation(
 		.Ain(Ain), 
 		.Bin(Bin),  
 		.overflow(overflow), 
@@ -34,7 +32,7 @@ module ALU(ALUop, Ain, Bin, ALUComputedValue, overflow);
 		.andVals(andVals), 
 		.notBVal(notBVal), 
 		.sub(sub), 
-		.computedValue(computedValue)
+		.computedValue(ALUComputedValue)
 		);
 
 endmodule
