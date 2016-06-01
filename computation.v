@@ -7,7 +7,7 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, st
 	input [15:0] A, B, sximm5;
 	output [2:0] status;
 	output [15:0] C;
-	reg statusComputed;
+	reg [2:0] statusComputed;
 	wire overflow;
 	wire [15:0] Ain, Bin, BShift, ALUComputedValue;
 
