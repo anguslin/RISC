@@ -1,4 +1,4 @@
-module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
+module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7);
 
 	parameter width= 1;
 	input clk, write;
@@ -6,7 +6,7 @@ module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg
 	input [2:0] writenum;
 	input [7:0] PC;
 	input [15:0] C, mdata, sximm8;
-	output [15:0] datapath_out, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
+	output [15:0] reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
 	reg [15:0] data_in;
 	reg [7:0] regSelect;	
 
@@ -39,14 +39,12 @@ module write(clk, vsel, write, writenum, C, mdata, sximm8, PC, datapath_out, reg
 	//update data_in depending on value of vsel
 	always @(*) begin
 		case(vsel)
-			00: data_in= mdata; 
-			01: data_in= sximm8;
-			10: data_in= {8'b00000000, PC};
-			11: data_in= datapath_out;
+			2'b00: data_in= mdata; 
+			2'b01: data_in= sximm8;
+			2'b10: data_in= {8'b00000000, PC};
+			2'b11: data_in= C;
+			default: data_in={16{1'bx}};
 		endcase
 	end
-	
-	//Put C value into datapath_out		
-	assign datapath_out= C; 
 	
 endmodule
