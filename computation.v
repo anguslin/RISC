@@ -29,7 +29,7 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, st
 	);
 	
 	//ALU Operations
-	ALU #(width) instatiateALU(
+	ALU #(width) instantiateALU(
 		.ALUop(ALUop), 
 		.Ain(Ain), 
 		.Bin(Bin), 
@@ -38,7 +38,7 @@ module computation(clk, asel, bsel, loadc, loads, shift, ALUop, A, B, sximm5, st
 	);
 	
 	//status Update
-	status #(width) instatiateStatus(
+	status #(width) instantiateStatus(
 	.ALUComputedValue(ALUComputedValue), 
 	.status(statusComputed), 
 	.overflow(overflow)
