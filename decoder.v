@@ -22,10 +22,10 @@ module decoder(instruction, nsel, opcode, readnum, writenum, ALUop, op, shift, s
         
         always@(*) begin
         	case(nsel)
-	        	00: tempReg = Rn; //nsel 00 = Rn
-	        	01: tempReg = Rd; //nsel 01 = Rd
-	        	10: tempReg = Rm; //nsel 10 = Rm
-	        	default: tempReg = 3'bxx;
+	        	2'b00: tempReg = Rn; //nsel 00 = Rn
+	        	2'b01: tempReg = Rd; //nsel 01 = Rd
+	        	2'b10: tempReg = Rm; //nsel 10 = Rm
+	        	default: tempReg = 3'bxxx;
         	endcase
         end
         
