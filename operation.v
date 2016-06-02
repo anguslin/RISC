@@ -9,7 +9,7 @@ module operation (Ain, Bin, addSubVals, andVals, notBVal, sub, computedValue, ov
         wire sign, lastNonSign;
 	wire [width-1:0] holder;
         
-	always @(*) begin  //ALU operation cases
+	always @(*) begin
 		case({addSubVals, sub, andVals, notBVal})
 			4'b1000: computedValue = Ain + Bin;	//Addition
 			4'b1100: computedValue = Ain - Bin;	//Subtraction	
@@ -19,16 +19,14 @@ module operation (Ain, Bin, addSubVals, andVals, notBVal, sub, computedValue, ov
 		endcase
 	end
 
-        //detecting overflow
+        //Adding or Subtracting Operation
         assign overflow= addSubVals? sign ^ lastNonSign : 1'b0; //XOR gate; if not the same => overflow
 
-
-        //Used to compute sign and and lastNonSign values to detect for overflow
         //Arithmetic on Non Sign Bits
         //if subtract, then convert to Two's Complement and then add
         assign {lastNonSign, holder[width-2:0]}= addSubVals? Ain[width-2:0] + (Bin[width-2:0] ^ {width-1{sub}}) + sub: {lastNonSign, holder[width-2:0]};
+
         //Arithmetic on Sign Bits
         assign {sign, holder[width-1]}= addSubVals? Ain[width-1] + (Bin[width-1] ^ sub) + lastNonSign: {sign, computedValue[width-1]};
-       
-       
+          
 endmodule
