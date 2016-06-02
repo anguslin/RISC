@@ -1,4 +1,5 @@
 
+
 module top_tb();
 
 reg [3:0] KEY_SIM;
@@ -31,7 +32,7 @@ top DUT (
 		KEY_SIM[1] = 1'b1;
 		#10;
 
-		repeat(10) begin
+		repeat(50) begin
 			#10;
 			KEY_SIM[0] = 0;
 			#10;
