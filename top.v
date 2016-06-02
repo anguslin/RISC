@@ -38,7 +38,9 @@ module top(KEY, CLOCK_50, LEDR, HEX0, HEX1, HEX2, HEX3, HEX4, HEX5);
 		.sximm5(sximm5),
 		.sximm8(sximm8),
                 // outputs
-                .status(LEDR[9:7])
+                .status(LEDR[9:7]),
+		.B(B),
+		.C(C)
                 );
                      
         decoder decoderInstantiate(
