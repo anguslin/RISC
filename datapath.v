@@ -1,5 +1,5 @@
 //Datapath module of the RISC
-module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, mdata, sximm5, sximm8, status);
+module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, loadc, loads, writenum, write, mdata, sximm5, sximm8, status, B, C);
 
 	//constants to define
 	`define WIDTH 16
@@ -10,8 +10,10 @@ module datapath(clk, readnum, vsel, loada, loadb, shift, asel, bsel, ALUop, load
 	input [1:0] shift, ALUop, vsel;
 	input [15:0] mdata, sximm5, sximm8;
 	output [2:0] status;
-	wire [15:0] A, B, C, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
-	
+	output [15:0] B, C;
+
+	wire [15:0] A, reg0, reg1, reg2, reg3, reg4, reg5, reg6, reg7;
+
 	wire [7:0] PC; //no function currently
 	
 	//Instantiation of register module
