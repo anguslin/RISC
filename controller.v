@@ -5,50 +5,50 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
         output loada, loadb, write, asel, bsel, loadc, loads, loadpc, msel, mwrite, loadir;
       	output [1:0] nsel, vsel;
         
-	wire [3:0] currentState, nextState; 
+	wire [4:0] currentState, nextState; 
 	wire [2:0] opcode;
 	wire [1:0] operation;
 
-	reg [3:0] nextStateToBeUpdated;
+	reg [4:0] nextStateToBeUpdated;
 	reg [14:0] inputData;
 
-	
 	//PC States
 	//Initial State
-	`define initiatePC 4'b0000
+	`define initiatePC 5'b00000
 	
 	//loading intructions
-	`define loadPC 4'b0001
-	`define loadRAM 4'b0010
-	`define loadIR 4'b0011
+	`define loadPC 5'b00001
+	`define loadRAM 5'b00010
+	`define loadIR 5'b00011
 	
 	//General
-	`define instrFirst 4'b0100
-	`define instrLast 4'b0101
+	`define instrFirst 5'b00100
+	`define instrLast 5'b00101
 	
 	//Instruction 2 
-	`define putInB 4'b0110
-	`define aluMovOpAndPutInC 4'b0111
+	`define putInB 5'b00110
+	`define aluMovOpAndPutInC 5'b00111
 	
 	//ALU States
 	//Instruction 3 
-	`define readRn 4'b1000
-	`define putInA 4'b1001
-	`define aluAddOpAndPutInC 4'b1010
+	`define readRn 5'b01000
+	`define putInA 5'b01001
+	`define aluAddOpAndPutInC 5'b01010
 	
 	//Instruction 5
-	`define aluAndOpAndPutInC 4'b1011
+	`define aluAndOpAndPutInC 5'b01011
 	
 	//Instruction 6
-	`define aluNotMovOpAndPutInC 4'b1100
+	`define aluNotMovOpAndPutInC 5'b01100
 	
 	//MEM States
 	//Instruction 7
-	`define aluMemLoadOpAndPutInC 4'b1101
+	`define aluMemLoadOpAndPutInC 5'b01101
+	`define loadReadAddress 5'b01110
 	
 	//Instruction 8
-	`define aluMemStoreOpAndPutInC 4'b1110
-	`define readRd 4'b1111
+	`define aluMemStoreOpAndPutInC 5'b01111
+	`define readRd 5'b10000
 	
 	//Operation Code
 	`define MOV 3'b110
@@ -79,7 +79,7 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 	//If reset, set program counter to 1
 	assign nextState= reset? `initiatePC: nextStateToBeUpdated;
 	//Update states based on clock
-	DFlipFlop #(4) StateUpdate(clk, nextState, currentState);
+	DFlipFlop #(5) StateUpdate(clk, nextState, currentState);
 	
 	//All outputs needed for module instantiations
 	assign nsel= inputData[14:13];
@@ -135,12 +135,12 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInB, `MOV, `ADD}: inputData= {inputData[14:10], 1'b1, inputData[8:0]};
 			
 			//Add A and Shifted B values and put into register C -> Clk
-			//bsel= 0 asel= 1 loadc= 1, else= before -> Clk
-			{`aluMovOpAndPutInC, `MOV, `ADD}: inputData= {inputData[14:8], 2'b10, inputData[5], 1'b1, inputData[3:0]};
+			//bsel= 0 asel= 1 loadc= 1 loadb= 0, else= before -> Clk
+			{`aluMovOpAndPutInC, `MOV, `ADD}: inputData= {inputData[14:10], 1'b0, inputData[8], 2'b10, inputData[5], 1'b1, inputData[3:0]};
 			
 			//Put value of C into Rd register
-			//nsel= `RD vsel= `C write= 1, else= before -> Clk
-			{`instrLast, `MOV, `ADD}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+			//nsel= `RD vsel= `C write= 1 loadc= 0, else= before -> Clk
+			{`instrLast, `MOV, `ADD}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:5], 1'b0, inputData[3:0]};
 			//----------
 			
 			//INSTRUCTION 3 //Add values of Rn and shifted Rm and put it in Rd
@@ -153,20 +153,20 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInB, `ALU, `ADD}: inputData= {inputData[14:10], 1'b1, inputData[8:0]};
 			
 			//read value from RN register
-			//nsel= `Rn (write already 0), else= begore -> Clk
-			{`readRn, `ALU, `ADD}: inputData= {`RN, inputData[12:0]};
+			//nsel= `Rn (write already 0) loadb= 0, else= begore -> Clk
+			{`readRn, `ALU, `ADD}: inputData= {`RN, inputData[12:10], 1'b0, inputData[8:0]};
 			
 			//put specified reading value in A
 			//loadb= 0, loada= 1, else= before -> Clk
 			{`putInA, `ALU, `ADD}: inputData= {inputData[14:11], 2'b10, inputData[8:0]};
 			
 			//do addition computations and load in register C
-			//asel= 0 bsel= 0 loadc= 1, else - before -> Clk
-			{`aluAddOpAndPutInC, `ALU, `ADD}: inputData= {inputData[14:8], 2'b00, inputData[5], 1'b1, inputData[3:0]};
+			//asel= 0 bsel= 0 loadc= 1 loada= 0, else - before -> Clk
+			{`aluAddOpAndPutInC, `ALU, `ADD}: inputData= {inputData[14:11], 1'b0, inputData[9:8], 2'b00, inputData[5], 1'b1, inputData[3:0]};
 			
 			//Put Value of C into Rd
-			//nsel= `RD vsel= `C write= 1, else= before -> Clk
-			{`instrLast, `ALU, `ADD}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+			//nsel= `RD vsel= `C write= 1 loadc= 0, else= before -> Clk
+			{`instrLast, `ALU, `ADD}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:5], 1'b0, inputData[3:0]};
 			//----------
 			
 			//INSTRUCTION 4 //Find the status output of Rn - Shifted Rm 
@@ -179,16 +179,16 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInB, `ALU, `CMP}: inputData= {inputData[14:11], 2'b01, inputData[8:0]};
 			
 			//read value from RN register
-			//nsel= `Rn (write already 0), else= begore -> Clk
-			{`readRn, `ALU, `CMP}: inputData= {`RN, inputData[12:0]};
+			//nsel= `Rn (write already 0) loadb= 0, else= begore -> Clk
+			{`readRn, `ALU, `CMP}: inputData= {`RN, inputData[12:10], 1'b0, inputData[8:0]};
 			
 			//put specified reading value in A
 			//loadb= 0, loada= 1, else= before -> Clk
 			{`putInA, `ALU, `CMP}: inputData= {inputData[14:11], 2'b10, inputData[8:0]};
 			
 			//do subtraction computations and load in status
-			//asel= 0 bsel= 0 loads= 1, else - before -> Clk
-			{`instrLast, `ALU, `CMP}: inputData= {inputData[14:8], 3'b001, inputData[5:0]};
+			//asel= 0 bsel= 0 loada= 0 loads= 1, else - before -> Clk
+			{`instrLast, `ALU, `CMP}: inputData= {inputData[14:11], 1'b0, inputData[9:8], 3'b001, inputData[5:0]};
 			//----------
 			
 			//INSTRUCTION 5 //Compute Rn ANDed with Shifted Rm and put it in Rd
@@ -201,20 +201,20 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInB, `ALU, `AND}: inputData= {inputData[14:11], 2'b01, inputData[8:0]};
 		
 			//read value from RN register
-			//nsel= `Rn (write already 0), else= begore -> Clk
-			{`readRn, `ALU, `AND}: inputData= {`RN, inputData[12:0]};
+			//nsel= `Rn (write already 0) loadb= 0, else= begore -> Clk
+			{`readRn, `ALU, `AND}: inputData= {`RN, inputData[12:10], 1'b0, inputData[8:0]};
 			
 			//put specified reading value in A
 			//loadb= 0, loada= 1, else= before -> Clk
 			{`putInA, `ALU, `AND}: inputData= {inputData[14:11], 2'b10, inputData[8:0]};
 		
 			//AND values inside reg A and B and then load it into C
-			//bsel= 0 asel= 0 loadc= 1, else= before -> Clk
-			{`aluAndOpAndPutInC, `ALU, `AND}: inputData= {inputData[14:8], 2'b00, inputData[5], 1'b1, inputData[3:0]};
+			//bsel= 0 asel= 0 loada= 0 loadc= 1, else= before -> Clk
+			{`aluAndOpAndPutInC, `ALU, `AND}: inputData= {inputData[14:11], 1'b0, inputData[9:8], 2'b00, inputData[5], 1'b1, inputData[3:0]};
 		
 			//Put Value of C into Rd
-			//nsel= `RD vsel= `C write= 1, else= before -> Clk
-			{`instrLast, `ALU, `AND}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+			//nsel= `RD vsel= `C loadc= 0 write= 1, else= before -> Clk
+			{`instrLast, `ALU, `AND}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:5], 1'b0, inputData[3:0]};
 			//----------
 			
 			//INSTRUCTION 6 //Write NOTed shifted value of Rm register into Rd register 
@@ -227,12 +227,12 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInB, `ALU, `MVN}: inputData= {inputData[14:11], 2'b01, inputData[8:0]};
 			
 			//Add A and Shifted B values and put into register C -> Clk
-			//bsel= 0 asel= 1 loadc= 1, else= before -> Clk
-			{`aluNotMovOpAndPutInC, `ALU, `MVN}: inputData= {inputData[14:8], 2'b10, inputData[5], 1'b1, inputData[3:0]};
+			//bsel= 0 asel= 1 loadb= 0 loadc= 1, else= before -> Clk
+			{`aluNotMovOpAndPutInC, `ALU, `MVN}: inputData= {inputData[14:10], 1'b0, inputData[8], 2'b10, inputData[5], 1'b1, inputData[3:0]};
 			
 			//Put value of C into Rd register
-			//nsel= `RD vsel= `C write= 1, else= before -> Clk
-			{`instrLast, `ALU, `MVN}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:0]};
+			//nsel= `RD vsel= `C loadc= 0 write= 1, else= before -> Clk
+			{`instrLast, `ALU, `MVN}: inputData= {`RD, `C, inputData[10:9], 1'b1, inputData[7:5], 1'b0, inputData[3:0]};
 			//----------
 			
 			//INSTRUCTION 7 //load memory from address specified by Rn + imm5 nad put it into RD
@@ -245,12 +245,17 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInA, `LDR, `ADD}: inputData= {inputData[14:11], 2'b10, inputData[8:0]};
 		
 			//load computed effective address into C
-			//bsel= 1 asel= 0 and loadc= 1, else= before -> Clk
-			{`aluMemLoadOpAndPutInC, `LDR, `ADD}: inputData= {inputData[14:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
+			//bsel= 1 asel= 0 loada= 0 loadc= 1, else= before -> Clk
+			{`aluMemLoadOpAndPutInC, `LDR, `ADD}: inputData= {inputData[14:11], 1'b0, inputData[9:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
 			
 			//load address into Ram and put mdata from RAM output into register RD
-			//set msel= 1 mwrite= 0 vsel=`MDATA nsel=`RD 
-			{`instrLast, `LDR, `ADD}: inputData= {`RD, `MDATA, inputData[10:3], 2'b10, inputData[0]};
+			//msel= 1 mwrite= 0 loadc = 0, else= before -> Clk
+			{`loadReadAddress, `LDR, `ADD}: inputData= {inputData[14:5], 1'b0, inputData[3], 2'b10, inputData[0]};
+			
+			
+			//Put mdata into register Rd
+			//nsel= `RD, vsel= `MDATA, else = before -> Clk		
+			{`instrLast, `LDR, `ADD}: inputData= {`RD, `MDATA, inputData[10:0]};
 			//----------
 		
 			//INSTRUCTION 8 //store value of register Rd into memory at address= sximm5+Rn
@@ -263,20 +268,20 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			{`putInA, `STR, `ADD}: inputData= {inputData[14:11], 2'b10, inputData[8:0]};
 		
 			//load computed effective address into C
-			//bsel= 1 asel= 0 and loadc= 1, else= before -> Clk
-			{`aluMemStoreOpAndPutInC, `STR, `ADD}: inputData= {inputData[14:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
-			
+			//bsel= 1 asel= 0 loada=0 loadc= 1, else= before -> Clk
+			{`aluMemStoreOpAndPutInC, `STR, `ADD}: inputData= {inputData[14:11], 1'b0, inputData[9:8], 2'b01, inputData[5], 1'b1, inputData[3:0]};
+
 			//read value from RD register
-			//nsel= `RD, else= before -> Clk
-			{`readRd, `STR, `ADD}: inputData= {`RD, inputData[12:0]};
+			//nsel= `RD loadc=0, else= before -> Clk
+			{`readRd, `STR, `ADD}: inputData= {`RD, inputData[12:5], 1'b0, inputData[3:0]};
 			
 			//put specified reading value in B
 			//loada= 0 loadb= 1, else= before -> Clk 
 			{`putInB, `STR, `ADD}: inputData= {inputData[14:11], 2'b01, inputData[8:0]};
 			
 			//update value in B with address from C into RAM 
-			//mwrite= 1 msel= 1, else= before -> Clk
-			{`instrLast, `STR, `ADD}: inputData= {inputData[14:3], 2'b11, inputData[0]};
+			//mwrite= 1 msel= 1 loadb = 0, else= before -> Clk
+			{`instrLast, `STR, `ADD}: inputData= {inputData[14:10], 1'b0, inputData[8:3], 2'b11, inputData[0]};
 		endcase
 	end
 	
@@ -339,7 +344,8 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			//INSTRUCTION 7 //load memory from address specified by Rn + imm5 nad put it into RD
 			{`instrFirst, `LDR, `ADD}: nextStateToBeUpdated= `putInA;
 			{`putInA, `LDR, `ADD}: nextStateToBeUpdated= `aluMemLoadOpAndPutInC;
-			{`aluMemLoadOpAndPutInC, `LDR, `ADD}: nextStateToBeUpdated= `instrLast;
+			{`aluMemLoadOpAndPutInC, `LDR, `ADD}: nextStateToBeUpdated= `loadReadAddress;
+			{`loadReadAddress, `LDR, `ADD}: nextStateToBeUpdated= `instrLast;
 			//----------
 		
 			//INSTRUCTION 8 //store value of register Rd into memory at address= sximm5+Rn
