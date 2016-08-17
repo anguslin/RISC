@@ -1,5 +1,6 @@
-module datapath_tb();
 
+//Testbench for the Datapath
+module datapath_tb();
 	reg clk_SIM, loada_SIM, loadb_SIM, write_SIM, vsel_SIM, asel_SIM, bsel_SIM, loadc_SIM, loads_SIM;
 	reg [2:0] readnum_SIM, writenum_SIM;
 	reg [1:0] shift_SIM, ALUop_SIM;
@@ -7,7 +8,6 @@ module datapath_tb();
 	wire [15:0] datapath_out_SIM;
 	wire status_SIM;
 	
-
 datapath DUT(
 	.clk(clk_SIM), 
 	.readnum(readnum_SIM),
@@ -123,7 +123,6 @@ datapath DUT(
 		#10;
 		clk_SIM = 0;
 		#20;	
-
 		$display("reg2 = 8 = 1000");
 	end
 endmodule
