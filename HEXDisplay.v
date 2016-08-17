@@ -1,17 +1,18 @@
-        
-//module to display the value of datpath_out DE1-SoC
 
-// One bit per segment on the DE1-SoC a HEX segment is illuminated depending on the input from datapath_out
-//The HEX display bits are as follows:
-          
-//    0000
-//   5    1
-//   5    1
-//    6666
-//   4    2
-//   4    2
-//    3333
-          
+/*
+* This module is to display the value of datpath_out DE1-SoC
+* One bit per segment on the DE1-SoC a HEX segment is illuminated depending on the input from datapath_out
+* The HEX display bits are as follows:
+*          
+*    0000
+*   5    1
+*   5    1
+*    6666
+*   4    2
+*   4    2
+*    3333
+*/
+
 module HEXDisplay(inValue, display);
         input [3:0] inValue;
         output [6:0] display;
