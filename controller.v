@@ -252,10 +252,9 @@ module controller(clk, ALUop, op, shift, opcode, readnum, writenum, loada, loadb
 			//msel= 1 mwrite= 0 loadc = 0, else= before -> Clk
 			{`loadReadAddress, `LDR, `ADD}: inputData= {inputData[14:5], 1'b0, inputData[3], 2'b10, inputData[0]};
 			
-			
 			//Put mdata into register Rd
-			//nsel= `RD, vsel= `MDATA, else = before -> Clk		
-			{`instrLast, `LDR, `ADD}: inputData= {`RD, `MDATA, inputData[10:0]};
+			//nsel= `RD, vsel= `MDATA, write=1, else = before -> Clk		
+			{`instrLast, `LDR, `ADD}: inputData= {`RD, `MDATA, inputData[10:9], 1'b1, inputData[7:0]};
 			//----------
 		
 			//INSTRUCTION 8 //store value of register Rd into memory at address= sximm5+Rn
