@@ -7,6 +7,8 @@ This is generated from Yosys Software: https://github.com/cliffordwolf/yosys
 https://github.com/anguslin/RISC/files/423904/RISC.Block.Diagram.pdf
 
 ## Executable Instructions
+The instruction decoder will decode the 15 bit instructions and determine which of the 8 instruction below it is.
+Shift = 2 bits | imm8 = 8 bits | imm5 = 5 bits | Rn, Rm, and Rd = 3 bits.
 
 | Instructions           |opcode| op | 11 bits           |
 | -----------------------|------|----|-------------------|
