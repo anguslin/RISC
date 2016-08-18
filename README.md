@@ -1,5 +1,5 @@
 ## Reduced Instruction Set Computer Machine
-This is a RISC machine written in verilog utilizing ModelSim for debugging.
+This is a simplified RISC machine written in verilog utilizing ModelSim for debugging.
 
 ## Block Diagram Visuals
 This is generated from Yosys Software: https://github.com/cliffordwolf/yosys
